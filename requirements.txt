@@ -1,0 +1,4 @@
+# Tkinter is not here because it ships with Python rather than from PyPI.
+# On Debian or Ubuntu install it with: sudo apt install python3-tk
+numpy>=1.21
+matplotlib>=3.5

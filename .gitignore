@@ -1,0 +1,26 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.idea/
+.vscode/
+.DS_Store
+
+# Output the program writes next to itself
+sensitivity.json
+fig_sensitivity.png
+*.csv
+
+# LaTeX build products. report.pdf is committed on purpose: the program
+# looks for it at runtime, so it has to be in the repository.
+docs/*.aux
+docs/*.log
+docs/*.out
+docs/*.toc
+docs/*.fls
+docs/*.fdb_latexmk
+docs/*.synctex.gz
+docs/*.bbl
+docs/*.bcf
+docs/*.blg
+docs/*.run.xml

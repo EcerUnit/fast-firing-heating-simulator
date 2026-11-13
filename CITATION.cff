@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: Pellet heating simulator for fast firing
+message: >-
+  If you use this software, please cite it using the metadata from this file.
+type: software
+authors:
+  - family-names: Mormeneo Segarra
+    given-names: Andrés
+    affiliation: Universitat Jaume I
+repository-code: "https://github.com/EcerUnit/fast-firing-heating-simulator"
+abstract: >-
+  Transient axisymmetric finite-volume model of a ceramic pellet heated in a
+  preheated furnace, with non-linearised radiation, temperature-dependent
+  properties on an enthalpy formulation, a two-layer sample/setter mesh, and
+  a sensitivity analysis of the inputs. Written for fast firing of NASICON
+  solid electrolytes.
+keywords:
+  - fast firing
+  - sintering
+  - heat transfer
+  - finite volume
+  - solid electrolytes
+  - LATP
+license: MIT
+version: "7.0.0"
+date-released: "2026-11-13"

@@ -1,0 +1,20 @@
+# Catches the obvious breakages: the files import, the reference case still
+# gives the numbers it has always given, and the two modules are from the
+# same version. It does not open a window, so there is no display to set up.
+name: check
+
+on: [push, pull_request]
+
+jobs:
+  reference-case:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: pip install -r requirements.txt
+      - name: Version guard between the two modules
+        run: python -c "import sensitivity"
+      - name: Reference case
+        run: python examples/headless_run.py
