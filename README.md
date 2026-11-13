@@ -1,12 +1,18 @@
 # Pellet heating simulator for fast firing
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24197432.svg)](https://doi.org/10.5281/zenodo.24197432)
+
+Transient heat transfer in a ceramic pellet dropped into a preheated furnace,
+solved by axisymmetric finite volumes with radiation and convection on the
+free surfaces.
+
 Transient heat transfer in a ceramic pellet dropped into a preheated furnace,
 solved by axisymmetric finite volumes with radiation and convection on the
 free surfaces.
 
 The question it answers is the practical one behind fast firing. The furnace is
-already at temperature; the pellet is not. **How long before its coldest point,
-the centre, is actually hot enough to sinter?** Everything else the program
+already at temperature; the pellet is not. **How long before its coldest point —
+the centre — is actually hot enough to sinter?** Everything else the program
 reports (heating rate, through-thickness gradient, thermal stress) follows from
 the same solution.
 
@@ -151,7 +157,14 @@ the top of `sensitivity.py`.
 
 ## Citing
 
-See `CITATION.cff`. The report is the thing to cite for the model itself.
+## Citing
+
+See `CITATION.cff`, or cite the archived release directly:
+
+> A. Mormeneo-Segarra and S. Ferrer-Nicomedes, *Pellet heating simulator for
+> fast firing*. Zenodo, 2026. doi: 10.5281/zenodo.24197432
+
+The report is the thing to cite for the model itself.
 
 ## Licence
 
