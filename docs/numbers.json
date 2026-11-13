@@ -2,8 +2,8 @@
  "t50": 32.36443292563606,
  "t90": 58.14934875217011,
  "t99": 78.24511810906566,
- "desfase": 67.98422686188042,
- "dmedia": 52.15125517432921,
+ "delay": 67.98422686188042,
+ "dmean": 52.15125517432921,
  "vmax": 19.497536694118427,
  "sigma": 69.53500689910562,
  "h_rad": 262.0783324711007,
@@ -11,111 +11,111 @@
  "Bi": 0.14135560078767542,
  "tau": 16.37320854342453,
  "dt_ms": 0.3937658982981438,
- "malla": "16x33",
+ "grid": "16x33",
  "rho_latp": 2990.0,
- "t99_punt": 39.66706643524637,
+ "t99_point": 39.66706643524637,
  "t99_comp": 60.39252267637517,
- "desv_comp": 52.24852277634803,
- "t99_rampa": 160.59564521644634,
- "v_rampa": 19.501799763363987,
- "sigma_rampa": 66.20045563556597,
- "desfase_rampa": 39.33322546968202,
- "malla_tabla": {
-  "Contacto puntual": [
+ "dev_comp": 52.24852277634803,
+ "t99_ramp": 160.59564521644634,
+ "v_ramp": 19.501799763363987,
+ "sigma_ramp": 66.20045563556597,
+ "delay_ramp": 39.33322546968202,
+ "mesh_table": {
+  "Point contact": [
    43.81798298271707,
    43.71501368568385,
    43.670709220459955
   ],
-  "Soporte de 1 mm": [
+  "Setter, 1 mm": [
    58.1362416680127,
    55.70960999730406,
    56.05625438455265
   ],
-  "Soporte de 2 mm": [
+  "Setter, 2 mm": [
    80.8498713310871,
    78.25642613591383,
    77.57135596037749
   ],
-  "Soporte de 5 mm": [
+  "Setter, 5 mm": [
    138.88361476286923,
    136.79691603268125,
    135.85072893171704
   ]
  },
- "convergencia": [
+ "convergence": [
   0.33823654599166275,
   0.08432346493545342,
   0.02104863295715274,
   0.005261011670183636
  ],
  "t99_sens": 80.84743640089833,
- "elasticidades": [
+ "elasticities": [
   [
-   "Temperatura del horno",
+   "Furnace setpoint",
    -2.97950348839457
   ],
   [
-   "rho del soporte",
+   "Support density  ρ",
    0.6961590158146611
   ],
   [
-   "cp del soporte (f(T))",
+   "Support specific heat  cₚ  (f(T))",
    0.6961590158146611
   ],
   [
-   "Emisividad del soporte (f(T))",
+   "Support emissivity  ε  (f(T))",
    -0.5469280681097258
   ],
   [
-   "Espesor del soporte",
+   "Support thickness",
    0.5456023803233432
   ],
   [
-   "Temperatura inicial",
+   "Initial temperature",
    -0.304559299135843
   ],
   [
-   "rho de la muestra",
+   "Sample density  ρ",
    0.22537685691962814
   ],
   [
-   "cp de la muestra (f(T))",
+   "Sample specific heat  cₚ  (f(T))",
    0.2253768569196083
   ],
   [
-   "Radio de la muestra",
+   "Sample radius",
    0.2201734717598271
   ],
   [
-   "Emisividad de la muestra (f(T))",
+   "Sample emissivity  ε  (f(T))",
    -0.21662730415372997
   ],
   [
-   "Espesor de la muestra",
+   "Sample thickness",
    0.20785188796244455
   ],
   [
-   "k del soporte (f(T))",
+   "Support conductivity  k  (f(T))",
    -0.08628495026601771
   ],
   [
-   "Radio del soporte",
+   "Support radius",
    0.08606753188899514
   ],
   [
-   "Tiempo de recuperación",
+   "Recovery time",
    0.06477787171945157
   ],
   [
-   "Coef. de convección",
+   "Convection coefficient",
    -0.04876302872926647
   ],
   [
-   "Caída al abrir",
+   "Drop on opening",
    0.03594383456791388
   ],
   [
-   "k de la muestra (f(T))",
+   "Sample conductivity  k  (f(T))",
    -0.03335644950089382
   ]
  ]

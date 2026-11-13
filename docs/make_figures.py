@@ -19,8 +19,9 @@ Run it from inside docs/, with the repository root importable:
 
 It takes a while — the tornado figure alone needs a full elasticity sweep.
 
-The axis labels are in Spanish because the report is; everything else here
-is in English, like the rest of the repository.
+Everything here is in English, labels included, like the rest of the
+repository. The file names of the figures are the ones report.tex expects:
+change one and you have to change the other.
 
 Needs scipy in addition to the project's own requirements.
 """
@@ -68,21 +69,21 @@ T = np.linspace(373.0, 1473.0, 400)
 fig, ax = plt.subplots(1, 3, figsize=(6.3, 2.5))
 ax[0].plot(T, pl["k"].evaluate(T), color=RED, lw=1.5, label="LATP")
 axb = ax[0].twinx()
-axb.plot(T, pa["k"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alúmina")
-axb.set_ylabel("alúmina (W/m·K)", fontsize=8)
+axb.plot(T, pa["k"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alumina")
+axb.set_ylabel("alumina (W/m·K)", fontsize=8)
 axb.tick_params(labelsize=7)
-ax[0].set_ylabel("LATP (W/m·K)"); ax[0].set_title("Conductividad")
+ax[0].set_ylabel("LATP (W/m·K)"); ax[0].set_title("Thermal conductivity")
 ax[1].plot(T, pl["cp"].evaluate(T), color=RED, lw=1.5, label="LATP")
-ax[1].plot(T, pa["cp"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alúmina")
+ax[1].plot(T, pa["cp"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alumina")
 ax[1].axhline(1190, color="k", lw=0.8, ls=":")
-ax[1].text(930, 660, "límite de Dulong–Petit (LATP)", fontsize=6.5)
-ax[1].set_ylabel("cp (J/kg·K)"); ax[1].set_title("Calor específico")
+ax[1].text(930, 660, "Dulong–Petit limit (LATP)", fontsize=6.5)
+ax[1].set_ylabel("cp (J/kg·K)"); ax[1].set_title("Specific heat")
 ax[1].legend(fontsize=7)
 ax[2].plot(T, pl["eps"].evaluate(T), color=RED, lw=1.5, label="LATP")
-ax[2].plot(T, pa["eps"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alúmina")
+ax[2].plot(T, pa["eps"].evaluate(T), color=BLUE, lw=1.5, ls="--", label="alumina")
 ax[2].axvspan(1073, 1273, color="#1a9850", alpha=0.12)
-ax[2].text(1080, 0.15, "medida", fontsize=6.5, color="#1a9850")
-ax[2].set_ylabel("emisividad"); ax[2].set_title("Emisividad")
+ax[2].text(1080, 0.15, "measured", fontsize=6.5, color="#1a9850")
+ax[2].set_ylabel("Emissivity"); ax[2].set_title("Emissivity")
 ax[2].legend(fontsize=7, loc="upper left")
 for a in ax:
     a.set_xlabel("T (K)")
@@ -96,8 +97,8 @@ Tc = Tp[:, 0]
 s_c, s_s = thermal_stress(r["T_mean"], Tc, Tp[:, 1], p["mechanical"])
 for f, case_name in ((0.50, "t50"), (0.90, "t90"), (0.99, "t99")):
     num[case_name] = t_fraction(t, Tc, f, p["T_initial"], p["T_furnace"])
-num["desfase"] = float(np.max(Tp[:, 1] - Tc))
-num["dmedia"] = float(np.max(r["T_mean"] - Tc))
+num["delay"] = float(np.max(Tp[:, 1] - Tc))
+num["dmean"] = float(np.max(r["T_mean"] - Tc))
 num["vmax"] = float(r["v_max"])
 num["sigma"] = float(s_c.max() / 1e6)
 h_rad, h_tot, Bi, tau = dimensionless(p)
@@ -109,18 +110,18 @@ print("base:", {k: (round(v, 2) if isinstance(v, float) else v)
                 for k, v in num.items()}, flush=True)
 
 fig, ax = plt.subplots(figsize=(6.3, 3.4))
-for i, (c, l, ls) in enumerate([(RED, "centro de la sample", "-"),
-                                (ORANGE, "cara superior", "-"),
-                                (BLUE, "cara inferior", "-"),
-                                (GREEN, "borde", (0, (5, 2))),
-                                (GREY, "support", "-")]):
+for i, (c, l, ls) in enumerate([(RED, "centre", "-"),
+                                (ORANGE, "top face", "-"),
+                                (BLUE, "bottom face", "-"),
+                                (GREEN, "rim", (0, (5, 2))),
+                                (GREY, "setter", "-")]):
     ax.plot(t, Tp[:, i] - K0, color=c, lw=1.5, ls=ls, label=l)
-ax.plot(t, r["T_env"] - K0, "k--", lw=1.0, label="paredes del horno")
+ax.plot(t, r["T_env"] - K0, "k--", lw=1.0, label="furnace walls")
 ax.axhline(p["T_initial"] + 0.99 * (p["T_furnace"] - p["T_initial"]) - K0,
            color="gray", lw=0.6, ls=":")
-ax.set_xlim(0, 200); ax.set_xlabel("tiempo (s)"); ax.set_ylabel("temperatura (°C)")
+ax.set_xlim(0, 200); ax.set_xlabel("time (s)"); ax.set_ylabel("Temperature (°C)")
 ax.legend(loc="lower right", ncol=2)
-fig.tight_layout(); fig.savefig("fig_curvas.pdf"); plt.close(fig)
+fig.tight_layout(); fig.savefig("fig_curves.pdf"); plt.close(fig)
 
 m = r["model"]
 fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.9))
@@ -133,76 +134,76 @@ for ts_, c in zip(inst, cols):
     ax[0].plot(r["snaps"][i][0, sel] - K0, zz[sel], color=c, lw=1.4,
                marker="o", ms=2.2, label=f"{ts_} s")
 ax[0].set_ylim(0, p["e_sample"] * 1000)
-ax[0].set_xlabel("temperatura (°C)")
-ax[0].set_ylabel("posición en el espesor (mm)")
-ax[0].set_title("Perfil axial en la sample"); ax[0].legend(fontsize=7)
+ax[0].set_xlabel("Temperature (°C)")
+ax[0].set_ylabel("position across the thickness (mm)")
+ax[0].set_title("Axial profile in the sample"); ax[0].legend(fontsize=7)
 mr = m.r <= p["r_sample"]
 for ts_, c in zip(inst, cols):
     i = int(np.argmin(np.abs(t - ts_)))
     ax[1].plot(m.r[mr] * 1000, r["snaps"][i][mr, m.j_centre] - K0, color=c, lw=1.4)
-ax[1].set_xlabel("radio (mm)"); ax[1].set_ylabel("temperatura (°C)")
-ax[1].set_title("Perfil radial en el plano medio")
-fig.tight_layout(); fig.savefig("fig_perfiles.pdf"); plt.close(fig)
+ax[1].set_xlabel("radius (mm)"); ax[1].set_ylabel("Temperature (°C)")
+ax[1].set_title("Radial profile on the mid-plane")
+fig.tight_layout(); fig.savefig("fig_profiles.pdf"); plt.close(fig)
 
 fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.9))
-ax[0].plot(t, r["v_centre"], color=RED, lw=1.6, label="centro")
-ax[0].plot(t, heating_rate(t, r["T_env"]), color=GREY, lw=1.0, ls="--", label="horno")
-ax[0].set_xlim(0, 150); ax[0].set_xlabel("tiempo (s)")
-ax[0].set_ylabel("dT/dt (K/s)"); ax[0].set_title("Velocidad de calentamiento")
+ax[0].plot(t, r["v_centre"], color=RED, lw=1.6, label="centre")
+ax[0].plot(t, heating_rate(t, r["T_env"]), color=GREY, lw=1.0, ls="--", label="furnace")
+ax[0].set_xlim(0, 150); ax[0].set_xlabel("time (s)")
+ax[0].set_ylabel("dT/dt (K/s)"); ax[0].set_title("Heating rate")
 ax[0].legend()
-ax[1].plot(t, s_c / 1e6, color=RED, lw=1.6, label="centro (tracción)")
-ax[1].plot(t, s_s / 1e6, color=BLUE, lw=1.6, label="superficie (compresión)")
+ax[1].plot(t, s_c / 1e6, color=RED, lw=1.6, label="centre (tension)")
+ax[1].plot(t, s_s / 1e6, color=BLUE, lw=1.6, label="surface (compression)")
 ax[1].axhline(0, color="k", lw=0.7)
-ax[1].set_xlim(0, 150); ax[1].set_xlabel("tiempo (s)")
-ax[1].set_ylabel("tensión (MPa)"); ax[1].set_title("Tensión de origen térmico")
+ax[1].set_xlim(0, 150); ax[1].set_xlabel("time (s)")
+ax[1].set_ylabel("Stress (MPa)"); ax[1].set_title("Thermal stress")
 ax[1].legend()
-fig.tight_layout(); fig.savefig("fig_velocidad.pdf"); plt.close(fig)
+fig.tight_layout(); fig.savefig("fig_rate.pdf"); plt.close(fig)
 
 # ------------------------------- the compact formula against the full run
 pp = base(with_support=False, drop=0.0)
 rp = Model(pp, N).solve(80.0, n_save=500)
 tcf, Tcf = compact_formula(pp, 80.0)
-num["t99_punt"] = t_fraction(rp["t"], rp["T"][:, 0], 0.99,
-                             pp["T_initial"], pp["T_furnace"])
+num["t99_point"] = t_fraction(rp["t"], rp["T"][:, 0], 0.99,
+                              pp["T_initial"], pp["T_furnace"])
 num["t99_comp"] = t_fraction(tcf, Tcf, 0.99, pp["T_initial"], pp["T_furnace"])
-num["desv_comp"] = 100 * abs(num["t99_punt"] - num["t99_comp"]) / num["t99_punt"]
+num["dev_comp"] = 100 * abs(num["t99_point"] - num["t99_comp"]) / num["t99_point"]
 fig, ax = plt.subplots(figsize=(6.3, 3.0))
-ax.plot(rp["t"], rp["T"][:, 0] - K0, color=RED, lw=1.8, label="cálculo 2D (centro)")
-ax.plot(tcf, Tcf - K0, "k--", lw=1.3, label="fórmula compacta")
-ax.set_xlim(0, 80); ax.set_xlabel("tiempo (s)"); ax.set_ylabel("temperatura (°C)")
+ax.plot(rp["t"], rp["T"][:, 0] - K0, color=RED, lw=1.8, label="centre, 2D calculation")
+ax.plot(tcf, Tcf - K0, "k--", lw=1.3, label="compact formula")
+ax.set_xlim(0, 80); ax.set_xlabel("time (s)"); ax.set_ylabel("Temperature (°C)")
 ax.legend(loc="lower right")
-fig.tight_layout(); fig.savefig("fig_compacta.pdf"); plt.close(fig)
-print("compacta:", num["t99_punt"], num["t99_comp"], num["desv_comp"], flush=True)
+fig.tight_layout(); fig.savefig("fig_compact.pdf"); plt.close(fig)
+print("compact:", num["t99_point"], num["t99_comp"], num["dev_comp"], flush=True)
 
 # ------------------------ fast firing against a conventional ramp
 pr = base(programme="ramp", ramp_K_min=600.0, T_furnace_initial=25 + K0)
 rr = Model(pr, N).solve(360.0, n_save=600)
 src, _ = thermal_stress(rr["T_mean"], rr["T"][:, 0], rr["T"][:, 1], pr["mechanical"])
-num["t99_rampa"] = t_fraction(rr["t"], rr["T"][:, 0], 0.99,
-                              pr["T_initial"], pr["T_furnace"])
-num["v_rampa"] = float(rr["v_max"])
-num["sigma_rampa"] = float(src.max() / 1e6)
-num["desfase_rampa"] = float(np.max(rr["T"][:, 1] - rr["T"][:, 0]))
+num["t99_ramp"] = t_fraction(rr["t"], rr["T"][:, 0], 0.99,
+                             pr["T_initial"], pr["T_furnace"])
+num["v_ramp"] = float(rr["v_max"])
+num["sigma_ramp"] = float(src.max() / 1e6)
+num["delay_ramp"] = float(np.max(rr["T"][:, 1] - rr["T"][:, 0]))
 fig, ax = plt.subplots(1, 2, figsize=(6.3, 2.9))
-ax[0].plot(t, Tc - K0, color=RED, lw=1.6, label="introducción directa")
-ax[0].plot(rr["t"], rr["T"][:, 0] - K0, color=BLUE, lw=1.6, label="ramp 600 °C/min")
-ax[0].set_xlim(0, 360); ax[0].set_xlabel("tiempo (s)")
-ax[0].set_ylabel("temperatura del centro (°C)"); ax[0].legend(loc="lower right")
-ax[0].set_title("Temperatura del centro")
-ax[1].plot(t, s_c / 1e6, color=RED, lw=1.6, label="introducción directa")
-ax[1].plot(rr["t"], src / 1e6, color=BLUE, lw=1.6, label="ramp 600 °C/min")
-ax[1].set_xlim(0, 360); ax[1].set_xlabel("tiempo (s)")
-ax[1].set_ylabel("tracción en el centro (MPa)"); ax[1].legend()
-ax[1].set_title("Tensión en el centro")
-fig.tight_layout(); fig.savefig("fig_rampa.pdf"); plt.close(fig)
-print("ramp:", num["t99_rampa"], num["v_rampa"], num["sigma_rampa"], flush=True)
+ax[0].plot(t, Tc - K0, color=RED, lw=1.6, label="direct introduction")
+ax[0].plot(rr["t"], rr["T"][:, 0] - K0, color=BLUE, lw=1.6, label="ramp, 600 °C/min")
+ax[0].set_xlim(0, 360); ax[0].set_xlabel("time (s)")
+ax[0].set_ylabel("centre temperature (°C)"); ax[0].legend(loc="lower right")
+ax[0].set_title("Centre temperature")
+ax[1].plot(t, s_c / 1e6, color=RED, lw=1.6, label="direct introduction")
+ax[1].plot(rr["t"], src / 1e6, color=BLUE, lw=1.6, label="ramp, 600 °C/min")
+ax[1].set_xlim(0, 360); ax[1].set_xlabel("time (s)")
+ax[1].set_ylabel("tension at the centre (MPa)"); ax[1].legend()
+ax[1].set_title("Stress at the centre")
+fig.tight_layout(); fig.savefig("fig_ramp.pdf"); plt.close(fig)
+print("ramp:", num["t99_ramp"], num["v_ramp"], num["sigma_ramp"], flush=True)
 
 # ------------------------------------------------------ mesh independence
 grid = {}
-for case_name, con, es in (("Contacto puntual", False, 0.0),
-                           ("Soporte de 1 mm", True, 0.001),
-                           ("Soporte de 2 mm", True, 0.002),
-                           ("Soporte de 5 mm", True, 0.005)):
+for case_name, con, es in (("Point contact", False, 0.0),
+                           ("Setter, 1 mm", True, 0.001),
+                           ("Setter, 2 mm", True, 0.002),
+                           ("Setter, 5 mm", True, 0.005)):
     row = []
     for n in (8, 14, 22):
         q = base(with_support=con, e_support=(es if con else 0.002))
@@ -234,12 +235,12 @@ for n in (10, 20, 40, 80):
     Tan = Ti_ + (T0_ - Ti_) * (A[:, None] * np.exp(-lam[:, None] ** 2 * Fo)).sum(0)
     s = Fo > 0.05
     conv.append(float(100 * np.abs(rv["T"][:, 0] - Tan)[s].max() / (Ti_ - T0_)))
-num["convergencia"] = conv
-print("convergencia:", conv, flush=True)
+num["convergence"] = conv
+print("convergence:", conv, flush=True)
 
 # ------------------------------------------------------ sensitivity
 print("sensitivity…", flush=True)
-b_sens, elas = elasticities(base(), n_esp=8)
+b_sens, elas = elasticities(base(), n_cells=8)
 num["t99_sens"] = float(b_sens)
 num["elasticities"] = [(e, (None if not np.isfinite(S) else float(S)))
                        for e, S, _, _ in elas]
@@ -256,13 +257,13 @@ for yi, v in zip(y, val):
             ha="left" if v > 0 else "right", fontsize=7)
 rng = max(val) - min(val)
 ax.set_xlim(min(val) - 0.20 * rng, max(val) + 0.20 * rng)
-ax.set_xlabel(r"elasticidad  $S = \mathrm{d}(\ln t_{99})\,/\,\mathrm{d}(\ln x)$")
+ax.set_xlabel(r"elasticity  $S = \mathrm{d}(\ln t_{99})\,/\,\mathrm{d}(\ln x)$")
 ax.grid(axis="y", alpha=0)
-fig.tight_layout(); fig.savefig("fig_tornado.pdf"); plt.close(fig)
+fig.tight_layout(); fig.savefig("fig_sensitivity.pdf"); plt.close(fig)
 
 json.dump(num, open("numbers.json", "w", encoding="utf-8"), indent=1,
           ensure_ascii=False, default=float)
-print("\n=== NUMEROS ===")
+print("\n=== NUMBERS ===")
 for k, v in num.items():
     if k not in ("elasticities", "mesh_table"):
         print(f"{k:14s} = {v}")

@@ -4,9 +4,13 @@ message: >-
   If you use this software, please cite it using the metadata from this file.
 type: software
 authors:
-  - family-names: Mormeneo Segarra
+  - family-names: Mormeneo-Segarra
     given-names: Andrés
     affiliation: Universitat Jaume I
+  - family-names: Ferrer-Nicomedes
+    given-names: Sergio
+    affiliation: Universitat Jaume I
+
 repository-code: "https://github.com/EcerUnit/fast-firing-heating-simulator"
 abstract: >-
   Transient axisymmetric finite-volume model of a ceramic pellet heated in a
@@ -20,7 +24,6 @@ keywords:
   - heat transfer
   - finite volume
   - solid electrolytes
-  - LATP
 license: MIT
 version: "7.0.0"
 date-released: "2026-11-13"

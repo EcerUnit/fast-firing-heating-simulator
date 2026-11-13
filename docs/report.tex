@@ -1,10 +1,9 @@
 \documentclass[11pt,a4paper]{article}
 
-% ---------------------------------------------------------------- paquetes
+% ---------------------------------------------------------------- packages
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-% es-noshorthands: evita que babel active < > " , que chocan con TikZ y siunitx
-\usepackage[spanish,es-nodecimaldot,es-noshorthands]{babel}
+\usepackage[english]{babel}
 \usepackage{lmodern}
 \usepackage{microtype}
 \usepackage[a4paper,top=2.6cm,bottom=2.6cm,left=2.7cm,right=2.7cm]{geometry}
@@ -19,37 +18,37 @@
 \usepackage{fancyhdr}
 \usepackage[hidelinks]{hyperref}
 
-% ------------------------------------------------------- color corporativo
-% Ajusta este RGB al verde exacto de la UJI si el tuyo es otro.
+% ------------------------------------------------------- corporate colour
+% Adjust this RGB to the exact UJI green if yours differs.
 \definecolor{uji}{RGB}{0,104,71}
 
-% ------------------------------------------------- referencias y rotulado
+% -------------------------------------------------- references and labels
 \newcommand{\cita}[1]{\textsuperscript{[\textcolor{uji}{#1}]}}
-\newcommand{\fig}[1]{\textbf{\textcolor{uji}{Figura #1}}}
-\newcommand{\tab}[1]{\textbf{\textcolor{uji}{Tabla #1}}}
-\newcommand{\ecu}[1]{\textbf{\textcolor{uji}{Ecuación #1}}}
+\newcommand{\fig}[1]{\textbf{\textcolor{uji}{Figure #1}}}
+\newcommand{\tab}[1]{\textbf{\textcolor{uji}{Table #1}}}
+\newcommand{\ecu}[1]{\textbf{\textcolor{uji}{Equation #1}}}
 
 \captionsetup[figure]{labelfont={bf,color=uji},labelsep=period,
                       font=small,justification=justified}
 \captionsetup[table]{labelfont={bf,color=uji},labelsep=period,
                      font=small,justification=justified}
 
-\sisetup{output-decimal-marker={,},per-mode=symbol,
-         group-separator={.},group-minimum-digits=4}
+\sisetup{output-decimal-marker={.},per-mode=symbol,
+         group-separator={,},group-minimum-digits=4}
 
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\small\textcolor{uji}{Calentamiento de pastillas cerámicas}}
+\lhead{\small\textcolor{uji}{Heating of ceramic pellets}}
 \rhead{\small\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
 \setlength{\parskip}{0.45em}
 \setlength{\parindent}{0pt}
 
-% ------------------------------------------------------------------ título
-\title{\vspace{-1.4cm}\textcolor{uji}{\textbf{Modelo térmico del calentamiento
-rápido de pastillas cerámicas en horno precalentado}}\\[0.3em]
-\large Fundamento físico, deducción de las ecuaciones y análisis de sensibilidad}
+% ------------------------------------------------------------------ title
+\title{\vspace{-1.4cm}\textcolor{uji}{\textbf{Thermal model of the fast
+heating of ceramic pellets in a preheated furnace}}\\[0.3em]
+\large Physical basis, derivation of the equations and sensitivity analysis}
 \author{Andrés Mormeneo Segarra}
 \date{\today}
 
@@ -59,135 +58,132 @@ rápido de pastillas cerámicas en horno precalentado}}\\[0.3em]
 
 \begin{abstract}
 \noindent
-Se deduce desde la conservación de la energía el modelo que predice la
-evolución de la temperatura en el interior de una pastilla cerámica
-introducida en un horno precalentado, con el objeto de determinar cuánto
-tarda su punto más frío en alcanzar la temperatura de sinterización. El
-problema se formula en coordenadas cilíndricas con simetría axial, se
-discretiza por volúmenes finitos conservativos y se resuelve con un esquema
-explícito en el que la condición de contorno radiativa se conserva en su
-forma no lineal. A partir del modelo completo se deduce, mediante la
-hipótesis de perfil cuasiestacionario, una forma reducida de dos parámetros
-adimensionales cuyo dominio de validez se acota de manera explícita. El
-núcleo numérico se contrasta con la solución analítica en serie de la placa
-plana con convección superficial. Un análisis de sensibilidad sobre
-diecisiete variables de entrada identifica las que gobiernan realmente el
-resultado y, con ello, las prioridades experimentales.
+Starting from the conservation of energy, this work derives the model that
+predicts how temperature evolves inside a ceramic pellet introduced into a
+preheated furnace, with the aim of determining how long its coldest point
+takes to reach the sintering temperature. The problem is posed in
+cylindrical coordinates with axial symmetry, discretised by conservative
+finite volumes and solved with an explicit scheme in which the radiative
+boundary condition is kept in its non-linear form. From the full model, and
+under the assumption of a quasi-steady profile, a reduced form governed by
+two dimensionless parameters is derived, and its domain of validity is
+bounded explicitly. The numerical core is checked against the analytical
+series solution for an infinite slab with surface convection. A sensitivity
+analysis over seventeen input variables identifies the ones that genuinely
+govern the result and, with them, the experimental priorities.
 \end{abstract}
 
 \tableofcontents
 \vspace{0.6em}
 
 % ==========================================================================
-\section{Planteamiento del problema}
+\section{Statement of the problem}
 
-\subsection{Descripción física}
+\subsection{Physical description}
 
-Una pastilla cerámica cilíndrica, inicialmente a temperatura uniforme, se
-introduce en la cámara de un horno que ya se encuentra a la temperatura de
-consigna. La pieza se apoya sobre un soporte cerámico. Desde el instante en
-que se cierra la puerta, la pastilla recibe calor por radiación y por
-convección a través de las superficies que ven las paredes del horno, y lo
-transmite hacia su interior por conducción.
+A cylindrical ceramic pellet, initially at uniform temperature, is placed
+inside the chamber of a furnace that is already at the setpoint. The piece
+rests on a ceramic setter. From the moment the door closes, the pellet
+receives heat by radiation and by convection across the surfaces that see
+the furnace walls, and carries it inwards by conduction.
 
-La magnitud de interés no es la temperatura media de la pieza, sino la de su
-punto más frío, que por simetría es su centro geométrico. Mientras ese punto
-no alcanza la temperatura de sinterización, una fracción del volumen está
-sinterizando en condiciones distintas de las nominales. El tiempo que tarda
-en alcanzarla es, por tanto, el que separa el ciclo térmico programado del
-ciclo térmico realmente experimentado por el material.
+The quantity of interest is not the mean temperature of the piece but that
+of its coldest point, which by symmetry is its geometric centre. For as long
+as that point has not reached the sintering temperature, a fraction of the
+volume is sintering under conditions other than the nominal ones. The time
+it takes to get there is therefore what separates the programmed thermal
+cycle from the thermal cycle the material actually experiences.
 
-\subsection{Geometría y dominio de cálculo}
+\subsection{Geometry and computational domain}
 
-Ni la geometría ni las condiciones de contorno dependen de la coordenada
-azimutal. El problema es, en consecuencia, bidimensional en el plano
-$(r,z)$, y el dominio de cálculo es la sección meridiana que se muestra en
-la \fig{1}.
+Neither the geometry nor the boundary conditions depend on the azimuthal
+coordinate. The problem is consequently two-dimensional in the $(r,z)$
+plane, and the computational domain is the meridian section shown in
+\fig{1}.
 
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}[scale=1.12, every node/.style={font=\footnotesize},
    flecha/.style={-{Stealth[length=2.2mm]},gray!65,line width=0.55pt}]
-  % soporte
+  % setter
   \draw[fill=gray!12,draw=gray!55,line width=0.7pt]
        (0,-1.30) rectangle (6.0,0);
-  \node[gray!75] at (4.5,-0.65) {soporte};
-  % muestra
+  \node[gray!75] at (4.5,-0.65) {setter};
+  % sample
   \draw[fill=uji!10,draw=uji,line width=1.1pt] (0,0) rectangle (3.0,0.90);
-  \node[font=\footnotesize\bfseries] at (1.5,0.45) {muestra};
-  % eje de simetria
+  \node[font=\footnotesize\bfseries] at (1.5,0.45) {sample};
+  % symmetry axis
   \draw[dashed,gray!60,line width=0.5pt] (0,-1.95) -- (0,2.25);
-  \node[gray!75] at (0,2.45) {eje de simetría \;$r=0$};
-  % flujo sobre la cara superior de la muestra
+  \node[gray!75] at (0,2.45) {symmetry axis \;$r=0$};
+  % flux on the top face of the sample
   \foreach \x in {0.6,1.5,2.4} \draw[flecha] (\x,1.85) -- (\x,1.02);
-  % flujo sobre el canto
+  % flux on the rim
   \draw[flecha] (4.15,0.45) -- (3.16,0.45);
-  % flujo sobre la parte descubierta del soporte
+  % flux on the exposed part of the setter
   \foreach \x in {4.65,5.45} \draw[flecha] (\x,1.85) -- (\x,0.13);
-  % flujo sobre el costado y la base del soporte
+  % flux on the side and the base of the setter
   \draw[flecha] (7.05,-0.65) -- (6.16,-0.65);
   \foreach \x in {1.5,4.0} \draw[flecha] (\x,-2.10) -- (\x,-1.43);
-  % punto mas frio
+  % coldest point
   \fill[uji] (0,0.45) circle (2pt);
   \draw[uji,line width=0.6pt] (0,0.45) -- (-0.95,1.45);
-  \node[uji,anchor=east] at (-0.92,1.52) {punto más frío};
-  % rotulo del flujo
-  \node[gray!75,anchor=west] at (4.9,2.15) {radiación $+$ convección};
+  \node[uji,anchor=east] at (-0.92,1.52) {coldest point};
+  % flux label
+  \node[gray!75,anchor=west] at (4.9,2.15) {radiation $+$ convection};
 \end{tikzpicture}
-\caption{Sección meridiana del dominio axisimétrico. La cara superior y el
-borde de la pastilla ven directamente las paredes del horno; la cara
-inferior no, porque el soporte se interpone. Esa asimetría domina el
-resultado.}
+\caption{Meridian section of the axisymmetric domain. The top face and the
+rim of the pellet see the furnace walls directly; the bottom face does not,
+because the setter is in the way. That asymmetry dominates the result.}
 \end{figure}
 
-El caso de referencia empleado a lo largo del documento es una pastilla de
-LATP de \SI{10}{\milli\meter} de diámetro y \SI{1.5}{\milli\meter} de
-espesor, inicialmente a \SI{100}{\celsius}, introducida en un horno a
-\SI{1200}{\celsius} sobre un soporte de alúmina de \SI{2}{\milli\meter} de
-espesor. Las propiedades de ambos materiales se recogen en la
-sección \ref{sec:propiedades}.
+The reference case used throughout this document is a LATP pellet
+\SI{10}{\milli\meter} in diameter and \SI{1.5}{\milli\meter} thick,
+initially at \SI{100}{\celsius}, placed in a furnace at
+\SI{1200}{\celsius} on an alumina setter \SI{2}{\milli\meter} thick. The
+properties of both materials are collected in
+section \ref{sec:propiedades}.
 
 % ==========================================================================
-\section{Ecuación de gobierno}
+\section{Governing equation}
 
-\subsection{De la conservación de la energía a la ecuación del calor}
+\subsection{From conservation of energy to the heat equation}
 
-El punto de partida es el primer principio aplicado a un volumen de control
-material $V$ fijo, sin generación interna, sin trabajo y sin transporte
-convectivo dentro del sólido. La variación temporal de la energía interna
-almacenada iguala al flujo neto de calor que atraviesa su frontera $A$:
+The starting point is the first law applied to a fixed material control
+volume $V$, with no internal generation, no work and no convective
+transport inside the solid. The rate of change of the stored internal
+energy equals the net heat flux crossing its boundary $A$:
 
 \begin{equation}
 \frac{\partial}{\partial t}\int_{V}\rho\, u\;\mathrm{d}V
 = -\oint_{A}\vec{q}\cdot\vec{n}\;\mathrm{d}A
 \end{equation}
 
-Para un sólido incompresible, $\mathrm{d}u = c_p\,\mathrm{d}T$. Aplicando el
-teorema de la divergencia al término de la derecha y exigiendo que la
-igualdad se cumpla para cualquier volumen, se obtiene la forma diferencial:
+For an incompressible solid, $\mathrm{d}u = c_p\,\mathrm{d}T$. Applying the
+divergence theorem to the right-hand term and requiring the equality to
+hold for any volume gives the differential form:
 
 \begin{equation}
 \rho\, c_p\, \frac{\partial T}{\partial t} = -\nabla\cdot\vec{q}
 \end{equation}
 
-El cierre lo aporta la ley de Fourier, que es una relación constitutiva
-empírica: el flujo de calor es proporcional y opuesto al gradiente de
-temperatura\cita{1}.
+Closure comes from Fourier's law, an empirical constitutive relation: the
+heat flux is proportional and opposite to the temperature
+gradient\cita{1}.
 
 \begin{equation}
 \vec{q} = -k\, \nabla T
 \end{equation}
 
-Conviene recordar su fundamento, porque marca un límite de validez. La ley
-de Fourier supone que los portadores de energía --- fonones en un aislante
-cerámico --- alcanzan el equilibrio local en tiempos mucho menores que la
-escala temporal del proceso. El tiempo de relajación fonónico en una
-cerámica es del orden de picosegundos, frente a los segundos del transitorio
-que aquí se estudia. La hipótesis es, por tanto, excelente, y no procede
-recurrir a formulaciones hiperbólicas del tipo Cattaneo--Vernotte.
+It is worth recalling its basis, because it marks a limit of validity.
+Fourier's law assumes that the energy carriers --- phonons in a ceramic
+insulator --- reach local equilibrium in times far shorter than the time
+scale of the process. The phonon relaxation time in a ceramic is of the
+order of picoseconds, against the seconds of the transient studied here.
+The assumption is therefore excellent, and there is no case for resorting
+to hyperbolic formulations of the Cattaneo--Vernotte type.
 
-Sustituyendo la ley de Fourier y particularizando en coordenadas cilíndricas
-con simetría azimutal\cita{1}:
+Substituting Fourier's law and specialising to cylindrical coordinates with
+azimuthal symmetry\cita{1}:
 
 \begin{equation}
 \boxed{\;
@@ -199,37 +195,37 @@ con simetría azimutal\cita{1}:
 \;}
 \end{equation}
 
-\subsection{Por qué la conductividad queda dentro de las derivadas}
+\subsection{Why the conductivity stays inside the derivatives}
 
-En la \ecu{4} la conductividad aparece dentro de los operadores
-diferenciales. No es un formalismo: el dominio contiene dos materiales
-distintos, muestra y soporte, y $k$ es discontinua en la interfase. Sacarla
-fuera solo es lícito en el interior de cada región homogénea. Allí donde lo
-es, la ecuación adopta su forma clásica,
+In \ecu{4} the conductivity appears inside the differential operators. This
+is not a formality: the domain contains two different materials, sample and
+setter, and $k$ is discontinuous at the interface. Taking it outside is
+legitimate only within each homogeneous region. Where it is, the equation
+takes its classical form,
 
 \begin{equation}
 \frac{\partial T}{\partial t}
 = \alpha \left( \frac{\partial^{2} T}{\partial r^{2}}
 + \frac{1}{r}\, \frac{\partial T}{\partial r}
 + \frac{\partial^{2} T}{\partial z^{2}} \right)
-\qquad \text{con} \qquad
+\qquad \text{with} \qquad
 \alpha = \frac{k}{\rho \cdot c_p}
 \end{equation}
 
-donde aparece la difusividad térmica $\alpha$. Su interpretación es directa:
-mide la rapidez con que una perturbación térmica se propaga por el material,
-frente a la capacidad de este para almacenarla. Es la magnitud que fija la
-escala de tiempos del problema, y no la conductividad por sí sola. El
-término $\tfrac{1}{r}\,\partial T/\partial r$ no tiene equivalente en
-coordenadas cartesianas: procede de que, al alejarse del eje, el área
-atravesada por el flujo radial crece proporcionalmente a $r$.
+where the thermal diffusivity $\alpha$ appears. Its interpretation is
+direct: it measures how quickly a thermal disturbance travels through the
+material relative to the material's capacity to store it. It is the
+quantity that sets the time scale of the problem, not the conductivity on
+its own. The term $\tfrac{1}{r}\,\partial T/\partial r$ has no equivalent
+in Cartesian coordinates: it arises because, moving away from the axis, the
+area crossed by the radial flux grows in proportion to $r$.
 
-\subsection{Escalas de tiempo del problema}
+\subsection{Time scales of the problem}
 
-Antes de resolver conviene estimar los tiempos característicos de difusión
-en cada dirección, que son $\tau \sim L^{2}/\alpha$. Con
-$\alpha = \SI{4.4e-7}{\meter\squared\per\second}$ para el LATP en verde, el
-semiespesor $L = \SI{0.75}{\milli\meter}$ y el radio
+Before solving, it is worth estimating the characteristic diffusion times in
+each direction, which are $\tau \sim L^{2}/\alpha$. With
+$\alpha = \SI{4.4e-7}{\meter\squared\per\second}$ for green LATP, the
+half-thickness $L = \SI{0.75}{\milli\meter}$ and the radius
 $R = \SI{5}{\milli\meter}$:
 
 \begin{equation}
@@ -237,38 +233,37 @@ $R = \SI{5}{\milli\meter}$:
 = \left( \frac{5}{0.75} \right)^{2} \approx 44
 \end{equation}
 
-La difusión radial es, pues, unas cuarenta veces más lenta que la axial. De
-ello se sigue una consecuencia importante: la pastilla se comporta
-esencialmente como una placa, con gradientes apreciables en el espesor y un
-campo casi plano en el radio salvo en una franja próxima al borde. Este
-resultado justifica a posteriori la reducción que se expone en la
-sección \ref{sec:agrupado}.
+Radial diffusion is therefore some forty times slower than axial diffusion.
+An important consequence follows: the pellet behaves essentially as a plate,
+with appreciable gradients across the thickness and a nearly flat field in
+the radius except for a band close to the rim. This result justifies, after
+the fact, the reduction set out in section \ref{sec:agrupado}.
 
 % ==========================================================================
-\section{Condiciones inicial y de contorno}
+\section{Initial and boundary conditions}
 
-\subsection{Condición inicial y simetría}
+\subsection{Initial condition and symmetry}
 
-La pieza entra en el horno a temperatura uniforme:
+The piece enters the furnace at uniform temperature:
 
 \begin{equation}
 T(r,z,0) = T_{0}
 \end{equation}
 
-En el eje, la simetría obliga a que el flujo radial se anule. No se trata de
-una hipótesis sino de una consecuencia geométrica: un flujo no nulo en
-$r=0$ exigiría una fuente lineal en el eje.
+On the axis, symmetry forces the radial flux to vanish. This is not an
+assumption but a geometric consequence: a non-zero flux at $r=0$ would
+require a line source on the axis.
 
 \begin{equation}
 \left. \frac{\partial T}{\partial r} \right|_{r=0} = 0
 \end{equation}
 
-\subsection{Balance en las superficies libres}
+\subsection{Balance on the free surfaces}
 
-En toda superficie que ve el horno, el calor que llega desde el interior por
-conducción ha de igualar al que la superficie intercambia con el entorno por
-radiación y convección. Se trata de un balance en una superficie sin masa, y
-por tanto sin capacidad de almacenamiento\cita{1}:
+On every surface that sees the furnace, the heat arriving from inside by
+conduction must equal the heat the surface exchanges with its surroundings
+by radiation and convection. This is a balance on a massless surface, and
+therefore one with no storage capacity\cita{1}:
 
 \begin{equation}
 \boxed{\;
@@ -278,37 +273,37 @@ por tanto sin capacidad de almacenamiento\cita{1}:
 \;}
 \end{equation}
 
-Obsérvese que $T_{s}$ es la temperatura de la propia superficie, y no la del
-material inmediatamente por debajo. La distinción parece sutil pero tiene
-consecuencias numéricas que se tratan en el apartado \ref{sec:pared}.
+Note that $T_{s}$ is the temperature of the surface itself, not that of the
+material immediately below it. The distinction looks subtle but it has
+numerical consequences, treated in section \ref{sec:pared}.
 
-\subsection{Fundamento del término radiativo}
+\subsection{Basis of the radiative term}
 
-El término radiativo procede de la ley de Stefan--Boltzmann, que da la
-potencia emitida por un cuerpo negro por unidad de área, $\sigma T^{4}$,
-corregida por la emisividad $\varepsilon$ de una superficie real. La forma
-concreta de la \ecu{9} descansa en dos hipótesis\cita{5,8}:
+The radiative term comes from the Stefan--Boltzmann law, which gives the
+power emitted by a black body per unit area, $\sigma T^{4}$, corrected by
+the emissivity $\varepsilon$ of a real surface. The particular form of
+\ecu{9} rests on two assumptions\cita{5,8}:
 
 \begin{enumerate}
-\item \emph{Superficie gris}. La emisividad no depende de la longitud de
-onda dentro del intervalo donde la emisión es significativa. A
-\SI{1200}{\celsius} el máximo de emisión está, por la ley de desplazamiento
-de Wien, en $\lambda_{\max} = 2898/1473 \approx \SI{2}{\micro\meter}$.
+\item \emph{Grey surface}. The emissivity does not depend on wavelength
+within the interval where emission is significant. At \SI{1200}{\celsius}
+the emission peak lies, by Wien's displacement law, at
+$\lambda_{\max} = 2898/1473 \approx \SI{2}{\micro\meter}$.
 
-\item \emph{Cuerpo pequeño en cavidad grande}. Si la pieza es pequeña frente
-a la cámara, prácticamente toda la radiación que emite es absorbida por las
-paredes y no regresa. El factor de forma desde la pieza hacia el recinto
-vale entonces la unidad, y el intercambio neto se reduce a la expresión
-anterior con la emisividad de la pieza como único parámetro óptico.
+\item \emph{Small body in a large cavity}. If the piece is small compared
+with the chamber, practically all the radiation it emits is absorbed by the
+walls and does not return. The view factor from the piece to the enclosure
+is then unity, and the net exchange reduces to the expression above with
+the emissivity of the piece as the only optical parameter.
 \end{enumerate}
 
-La segunda hipótesis es la más comprometida en un montaje real, y se discute
-críticamente en la sección \ref{sec:limitaciones}.
+The second assumption is the more compromised one in a real set-up, and it
+is discussed critically in section \ref{sec:limitaciones}.
 
-\subsection{El coeficiente radiativo equivalente y por qué no se emplea}
+\subsection{The equivalent radiative coefficient, and why it is not used}
 
-Es práctica común linealizar el término radiativo factorizando la diferencia
-de cuartas potencias\cita{1}:
+It is common practice to linearise the radiative term by factorising the
+difference of fourth powers\cita{1}:
 
 \begin{equation}
 T_{h}^{4} - T_{s}^{4}
@@ -319,22 +314,21 @@ h_{rad} = \varepsilon\, \sigma \left( T_{h} + T_{s} \right)
           \left( T_{h}^{2} + T_{s}^{2} \right)
 \end{equation}
 
-La factorización es exacta; el problema es su uso. El coeficiente $h_{rad}$
-depende de $T_{s}$, que es precisamente la incógnita. Entre
-\SI{100}{\celsius} y \SI{1200}{\celsius} pasa de unos \num{90} a unos
-\SI{580}{\watt\per\meter\squared\per\kelvin}, un factor seis. Congelarlo en
-un valor medio introduce errores de varias decenas por ciento al comienzo
-del transitorio, que es donde se decide el tiempo de calentamiento. Por esa
-razón el cálculo conserva la cuarta potencia, y $h_{rad}$ se emplea
-únicamente a posteriori, para interpretar resultados y construir números
-adimensionales.
+The factorisation is exact; the problem is how it is used. The coefficient
+$h_{rad}$ depends on $T_{s}$, which is precisely the unknown. Between
+\SI{100}{\celsius} and \SI{1200}{\celsius} it goes from about \num{90} to
+about \SI{580}{\watt\per\meter\squared\per\kelvin}, a factor of six.
+Freezing it at a mean value introduces errors of several tens of per cent
+at the start of the transient, which is where the heating time is decided.
+For that reason the calculation keeps the fourth power, and $h_{rad}$ is
+used only afterwards, to interpret results and build dimensionless numbers.
 
-\subsection{Interfase entre materiales}
+\subsection{Interface between materials}
 
-En la interfase entre muestra y soporte se imponen continuidad del flujo
-normal y continuidad de temperatura. Si existe una resistencia térmica de
-contacto $R_{c}$, la segunda condición se sustituye por un salto
-proporcional al flujo\cita{1}:
+At the sample/setter interface, continuity of the normal flux and
+continuity of temperature are imposed. If a thermal contact resistance
+$R_{c}$ exists, the second condition is replaced by a jump proportional to
+the flux\cita{1}:
 
 \begin{equation}
 q''_{1} = q''_{2}
@@ -342,186 +336,185 @@ q''_{1} = q''_{2}
 T_{1} - T_{2} = R_{c}\, q''
 \end{equation}
 
-Físicamente, $R_{c}$ recoge que dos sólidos en contacto solo se tocan en una
-pequeña fracción de su área aparente; el calor atraviesa la unión por los
-puntos de contacto, por conducción en el gas intersticial y, a temperatura
-elevada, por radiación a través de los huecos.
+Physically, $R_{c}$ captures the fact that two solids in contact actually
+touch over only a small fraction of their apparent area; heat crosses the
+junction through the contact spots, by conduction in the interstitial gas
+and, at high temperature, by radiation across the gaps.
 
-\subsection{Programa térmico del horno}
+\subsection{Furnace thermal programme}
 
-La temperatura de las paredes no es constante. El modelo admite dos
-programas. En el primero, el horno está estabilizado y la apertura de la
-puerta provoca una caída que se recupera exponencialmente:
+The wall temperature is not constant. The model admits two programmes. In
+the first, the furnace is stabilised and opening the door causes a drop
+that recovers exponentially:
 
 \begin{equation}
 T_{h}(t) = T_{\infty} - \Delta T\, e^{-t/\tau_{h}}
 \end{equation}
 
-En el segundo, propio de una sinterización convencional, el horno asciende a
-velocidad constante hasta la consigna y allí se mantiene:
+In the second, typical of conventional sintering, the furnace climbs at a
+constant rate to the setpoint and is then held there:
 
 \begin{equation}
 T_{h}(t) = \min\left( T_{\infty},\; T_{h,0} + \dot{T}\, t \right)
 \end{equation}
 
-Ambos parámetros, $\Delta T$ y $\tau_{h}$, son medibles con un termopar en
-la cámara, y conviene hacerlo: son datos del horno, no del modelo.
+Both parameters, $\Delta T$ and $\tau_{h}$, can be measured with a
+thermocouple in the chamber, and it is worth doing so: they are data of the
+furnace, not of the model.
 
 % ==========================================================================
-\section{Discretización por volúmenes finitos}
+\section{Finite-volume discretisation}
 
-\subsection{Elección del método}
+\subsection{Choice of method}
 
-Se emplean volúmenes finitos y no diferencias finitas. La razón no es de
-precisión sino de conservación. El método de volúmenes finitos integra la
-ecuación sobre cada celda, de modo que el flujo que abandona una celda es
-idénticamente el que entra en su vecina. La energía se conserva de forma
-exacta, también a través de la interfase entre materiales con propiedades
-muy distintas, y lo hace sea cual sea la finura de la
-malla\cita{3,7}.
+Finite volumes are used rather than finite differences. The reason is not
+accuracy but conservation. The finite-volume method integrates the equation
+over each cell, so that the flux leaving one cell is identically the flux
+entering its neighbour. Energy is conserved exactly, including across the
+interface between materials with very different properties, and it is
+conserved whatever the fineness of the mesh\cita{3,7}.
 
-Integrando la \ecu{4} sobre el volumen de control de la celda $P$ y
-aplicando el teorema de la divergencia, el balance adopta la forma de una
-suma de flujos por sus caras:
+Integrating \ecu{4} over the control volume of cell $P$ and applying the
+divergence theorem, the balance takes the form of a sum of fluxes through
+its faces:
 
 \begin{equation}
 \boxed{\;
 \rho\, c_p\, V_{P}\, \frac{T_{P}^{\,n+1} - T_{P}^{\,n}}{\Delta t}
-= \sum_{\text{caras}} G_{i} \left( T_{i}^{\,n} - T_{P}^{\,n} \right)
+= \sum_{\text{faces}} G_{i} \left( T_{i}^{\,n} - T_{P}^{\,n} \right)
 + q''_{sup}\, A_{exp}
 \;}
 \end{equation}
 
-donde $G_{i}$ es la conductancia entre centros de celdas vecinas, en
-\si{\watt\per\kelvin}, y $A_{exp}$ el área de la celda expuesta al horno. En
-coordenadas cilíndricas, volúmenes y áreas incorporan el radio:
+where $G_{i}$ is the conductance between the centres of neighbouring cells,
+in \si{\watt\per\kelvin}, and $A_{exp}$ is the area of the cell exposed to
+the furnace. In cylindrical coordinates, volumes and areas carry the
+radius:
 
 \begin{equation}
 V_{P} = 2\pi\, r_{P}\, \Delta r\, \Delta z
 \qquad
-A_{r} = 2\pi\, r_{cara}\, \Delta z
+A_{r} = 2\pi\, r_{face}\, \Delta z
 \qquad
 A_{z} = 2\pi\, r_{P}\, \Delta r
 \end{equation}
 
-\subsection{La media armónica en la interfase}
+\subsection{The harmonic mean at the interface}
 
-Este es el punto donde una implementación poco cuidadosa falla. La
-conductividad que debe emplearse en la cara común a dos celdas de materiales
-distintos no es la media aritmética de ambas conductividades, sino la
-armónica\cita{3}:
+This is the point where a careless implementation fails. The conductivity to
+be used on the face shared by two cells of different materials is not the
+arithmetic mean of the two conductivities but the harmonic one\cita{3}:
 
 \begin{equation}
 \boxed{\;
-k_{cara} = \frac{2\, k_{1} \cdot k_{2}}{k_{1} + k_{2}}
+k_{face} = \frac{2\, k_{1} \cdot k_{2}}{k_{1} + k_{2}}
 \;}
 \end{equation}
 
-El fundamento es físico. Dos medias celdas en serie oponen al paso del calor
-resistencias que se suman, y la resistencia es inversamente proporcional a
-la conductividad. Imponiendo que el flujo calculado con $k_{cara}$ coincida
-con el que atraviesa realmente las dos resistencias en serie se obtiene de
-inmediato la \ecu{16}.
+The basis is physical. Two half-cells in series oppose the passage of heat
+with resistances that add, and resistance is inversely proportional to
+conductivity. Requiring the flux computed with $k_{face}$ to match the one
+that actually crosses the two resistances in series gives \ecu{16}
+immediately.
 
-La diferencia no es menor. En la interfase LATP--alúmina, con
-$k_1 = \num{0.8}$ y $k_2 = \SI{6}{\watt\per\meter\per\kelvin}$, la media
-aritmética daría \num{3.4} y la armónica da \num{1.41}. Emplear la
-aritmética sobrestimaría el acoplamiento térmico con el soporte en un factor
-\num{2.4}, y con él todo el resultado. Nótese además que la media armónica
-tiende correctamente al valor del material menos conductor cuando las dos
-conductividades son muy dispares, que es el comportamiento físicamente
-esperable de dos resistencias en serie.
+The difference is not small. At the LATP--alumina interface, with
+$k_1 = \num{0.8}$ and $k_2 = \SI{6}{\watt\per\meter\per\kelvin}$, the
+arithmetic mean would give \num{3.4} while the harmonic mean gives
+\num{1.41}. Using the arithmetic mean would overstate the thermal coupling
+with the setter by a factor of \num{2.4}, and with it the whole result.
+Note also that the harmonic mean correctly tends to the value of the poorer
+conductor when the two conductivities are very different, which is the
+physically expected behaviour of two resistances in series.
 
-\subsection{Propiedades dependientes de la temperatura}
+\subsection{Temperature-dependent properties}
 \label{sec:entalpia}
 
-Cuando el calor específico depende de la temperatura, el avance temporal no
-puede hacerse sobre la temperatura. La razón es que la capacidad térmica
-cambia dentro del propio paso de tiempo, de modo que el esquema deja de
-conservar la energía y el error se acumula a lo largo del transitorio.
+When the specific heat depends on temperature, the time advance cannot be
+carried out on temperature. The reason is that the heat capacity changes
+within the time step itself, so that the scheme stops conserving energy and
+the error accumulates through the transient.
 
-El modelo avanza por ello sobre la \emph{entalpía volumétrica}, definida
-como
+The model therefore advances on the \emph{volumetric enthalpy}, defined as
 
 \begin{equation}
 u(T) = \rho \int_{T_{ref}}^{T} c_p(T')\, \mathrm{d}T'
 \end{equation}
 
-El balance de la \ecu{15} se reescribe entonces sobre $u$, y la temperatura
-se recupera invirtiendo $u(T)$, que es monótona creciente por ser
+The balance of \ecu{15} is then rewritten on $u$, and the temperature is
+recovered by inverting $u(T)$, which is monotonically increasing because
 $c_p > 0$:
 
 \begin{equation}
 V_{P}\, \frac{u_{P}^{\,n+1} - u_{P}^{\,n}}{\Delta t}
-= \sum_{\text{caras}} G_{i} \left( T_{i}^{\,n} - T_{P}^{\,n} \right)
+= \sum_{\text{faces}} G_{i} \left( T_{i}^{\,n} - T_{P}^{\,n} \right)
 + q''_{sup}\, A_{exp}
 \qquad
 T_{P}^{\,n+1} = u^{-1}\!\left( u_{P}^{\,n+1} \right)
 \end{equation}
 
-Así la energía se conserva de forma exacta sea cual sea la variación de
-$c_p$: se ha comprobado que la energía acumulada coincide con la teórica
-dentro de $10^{-14}$ por ciento, es decir, a precisión de máquina. La
-formulación admite además sin modificación un calor latente, que aparecería
-como un salto en $u(T)$. Este punto es relevante aquí, como se discute en el
-apartado \ref{sec:reservas}.
+Energy is then conserved exactly whatever the variation of $c_p$: the
+accumulated energy has been checked to match the theoretical value to
+within $10^{-14}$ per cent, that is, to machine precision. The formulation
+also admits a latent heat without modification, which would appear as a
+jump in $u(T)$. This point is relevant here, as discussed in
+section \ref{sec:reservas}.
 
-La conductividad y la emisividad se reevalúan periódicamente a lo largo del
-cálculo, y con ellas las conductancias entre celdas.
+Conductivity and emissivity are re-evaluated periodically through the
+calculation, and the inter-cell conductances with them.
 
-\subsection{Esquema temporal y criterio de estabilidad}
+\subsection{Time scheme and stability criterion}
 \label{sec:estabilidad}
 
-El avance en el tiempo es explícito: el segundo miembro de la \ecu{14} se
-evalúa con los valores del instante $n$. Es el esquema más sencillo y el más
-barato por paso, pero es condicionalmente estable.
+The time advance is explicit: the right-hand side of \ecu{14} is evaluated
+with the values at instant $n$. It is the simplest scheme and the cheapest
+per step, but it is conditionally stable.
 
-El criterio se deduce exigiendo que el coeficiente que multiplica a
-$T_{P}^{\,n}$ en la expresión de $T_{P}^{\,n+1}$ no sea
-negativo\cita{1,3}. Su significado físico es transparente: una celda no
-puede ceder en un solo paso de tiempo más energía de la que almacena, pues
-de lo contrario su temperatura caería por debajo de la de sus vecinas, lo
-que violaría el segundo principio y haría crecer la solución sin límite.
+The criterion follows from requiring that the coefficient multiplying
+$T_{P}^{\,n}$ in the expression for $T_{P}^{\,n+1}$ not be
+negative\cita{1,3}. Its physical meaning is transparent: a cell cannot give
+up in a single time step more energy than it stores, for otherwise its
+temperature would fall below that of its neighbours, which would violate
+the second law and make the solution grow without bound.
 
 \begin{equation}
 \boxed{\;
 \Delta t \leq \frac{\rho\, c_p\, V_{P}}
-{\displaystyle\sum_{\text{caras}} G_{i}
+{\displaystyle\sum_{\text{faces}} G_{i}
 + A_{exp} \left( h_{c} + 4\, \varepsilon\, \sigma\, T_{h}^{3} \right)}
 \;}
 \end{equation}
 
-El término $4 \varepsilon \sigma T_{h}^{3}$ es la cota superior del
-coeficiente radiativo, obtenida al evaluar la \ecu{10} en el caso más
-desfavorable, $T_{s} \to T_{h}$. El código recorre todas las celdas, toma el
-mínimo y aplica un margen de seguridad del \SI{40}{\percent}.
+The term $4 \varepsilon \sigma T_{h}^{3}$ is the upper bound of the
+radiative coefficient, obtained by evaluating \ecu{10} in the worst case,
+$T_{s} \to T_{h}$. The code sweeps every cell, takes the minimum and
+applies a safety margin of \SI{40}{\percent}.
 
-Con propiedades dependientes de la temperatura, la cota se evalúa en el caso
-más desfavorable de todo el recorrido térmico: conductividad máxima, que
-maximiza las conductancias, y capacidad térmica mínima, que minimiza la
-energía almacenada. De ese modo la estabilidad queda garantizada aunque las
-propiedades cambien durante el cálculo.
+With temperature-dependent properties, the bound is evaluated in the worst
+case over the whole thermal range: maximum conductivity, which maximises
+the conductances, and minimum heat capacity, which minimises the stored
+energy. Stability is thereby guaranteed even though the properties change
+during the calculation.
 
-Un esquema implícito eliminaría esta restricción, pero obligaría a resolver
-un sistema lineal en cada paso y, por la no linealidad de la condición
-radiativa, a iterar dentro de cada uno. Con dominios de unos pocos miles de
-celdas y transitorios de decenas de segundos, el esquema explícito resuelve
-el problema en segundos y no justifica esa complicación.
+An implicit scheme would remove this restriction, but it would require
+solving a linear system at every step and, because of the non-linearity of
+the radiative condition, iterating within each one. With domains of a few
+thousand cells and transients of tens of seconds, the explicit scheme
+solves the problem in seconds and does not justify that complication.
 
 % ==========================================================================
-\section{Tratamiento de las superficies radiantes}
+\section{Treatment of the radiating surfaces}
 \label{sec:pared}
 
-Un esquema de volúmenes finitos conoce la temperatura en el centro de cada
-celda, no en su superficie. Evaluar el flujo radiativo con la temperatura
-del nodo central equivale a ignorar la caída térmica que existe en la media
-celda que lo separa de la pared, lo que introduce un error sistemático que
-sobrestima el calentamiento.
+A finite-volume scheme knows the temperature at the centre of each cell, not
+at its surface. Evaluating the radiative flux with the temperature of the
+central node amounts to ignoring the thermal drop across the half-cell that
+separates it from the wall, which introduces a systematic error that
+overstates the heating.
 
-El tratamiento correcto resuelve la temperatura de pared $T_{s}$ imponiendo
-el balance de la \ecu{9} de forma discreta: el calor que llega por
-conducción desde el nodo $P$, a través de la media celda de espesor $d$,
-iguala al que sale por la superficie.
+The correct treatment solves for the wall temperature $T_{s}$ by imposing
+the balance of \ecu{9} in discrete form: the heat arriving by conduction
+from node $P$, across the half-cell of thickness $d$, equals the heat
+leaving through the surface.
 
 \begin{equation}
 \frac{k}{d} \left( T_{P} - T_{s} \right)
@@ -529,47 +522,47 @@ iguala al que sale por la superficie.
 + h_{c} \left( T_{s} - T_{h} \right)
 \end{equation}
 
-La ecuación es no lineal en $T_{s}$ y se resuelve por Newton--Raphson, cuya
-derivada tiene forma cerrada:
+The equation is non-linear in $T_{s}$ and is solved by Newton--Raphson,
+whose derivative has a closed form:
 
 \begin{equation}
 \frac{\partial f}{\partial T_{s}}
 = -\frac{k}{d} - h_{c} - 4\, \varepsilon\, \sigma\, T_{s}^{3}
 \end{equation}
 
-Tres iteraciones bastan en cada paso de tiempo, porque $T_{s}$ varía muy
-poco entre pasos consecutivos y el valor anterior es un excelente punto de
-partida.
+Three iterations suffice at each time step, because $T_{s}$ varies very
+little between consecutive steps and the previous value is an excellent
+starting point.
 
-En términos de resistencias, lo que se hace es colocar en serie la
-resistencia conductiva de la media celda con la resistencia de película de
-la superficie:
+In terms of resistances, what is being done is to place the conductive
+resistance of the half-cell in series with the film resistance of the
+surface:
 
 \begin{equation}
 \frac{1}{G_{sup}} = \frac{d}{k \cdot A}
 + \frac{1}{A \left( h_{c} + h_{rad} \right)}
 \end{equation}
 
-El efecto no es cosmético. Omitir este tratamiento hace que el modelo
-sobrestime la velocidad de calentamiento en un \SI{1.4}{\percent} del salto
-térmico total, y el sesgo no desaparece al refinar la malla al ritmo que
-cabría esperar, porque la estructura del error en la superficie se mantiene.
-Resolver la pared permite, además, emplear mallas gruesas con confianza, que
-es lo que abarata el análisis de sensibilidad.
+The effect is not cosmetic. Omitting this treatment makes the model
+overstate the heating rate by \SI{1.4}{\percent} of the total thermal
+range, and the bias does not disappear on mesh refinement at the rate one
+might expect, because the structure of the error at the surface persists.
+Solving for the wall also makes it possible to use coarse meshes with
+confidence, which is what makes the sensitivity analysis affordable.
 
 % ==========================================================================
-\section{Reducción al modelo agrupado}
+\section{Reduction to the lumped model}
 \label{sec:agrupado}
 
-\subsection{El número de Biot}
+\subsection{The Biot number}
 
-El cálculo bidimensional proporciona el resultado, pero no proporciona
-criterio. Para eso conviene una forma reducida que agrupe las variables y
-muestre de qué depende realmente el tiempo de calentamiento.
+The two-dimensional calculation gives the result, but it gives no criterion.
+For that, a reduced form is useful, one that groups the variables and shows
+what the heating time really depends on.
 
-La magnitud que decide si una pieza puede tratarse como isoterma es el
-cociente entre su resistencia interna a la conducción y la resistencia
-externa de la superficie\cita{1}:
+The quantity that decides whether a piece may be treated as isothermal is
+the ratio of its internal conduction resistance to the external surface
+resistance\cita{1}:
 
 \begin{equation}
 \boxed{\;
@@ -577,26 +570,26 @@ Bi = \frac{R_{int}}{R_{ext}}
 = \frac{L/k}{1/h}
 = \frac{h \cdot L}{k}
 \;}
-\qquad \text{con} \qquad L = \frac{e}{2}
+\qquad \text{with} \qquad L = \frac{e}{2}
 \end{equation}
 
-El criterio clásico para aplicar capacidad concentrada es $Bi < \num{0.1}$,
-con un error inferior al \SI{5}{\percent}. Para la pastilla de referencia,
-con $h$ total del orden de
-\SI{272}{\watt\per\meter\squared\per\kelvin}, resulta $Bi = \num{0.141}$:
-por encima del límite, aunque no mucho. La pieza no es isoterma, pero
-tampoco está lejos de serlo. Ello sugiere el camino a seguir: conservar la
-ecuación agrupada y añadirle una corrección de perfil.
+The classical criterion for applying lumped capacitance is
+$Bi < \num{0.1}$, with an error below \SI{5}{\percent}. For the reference
+pellet, with a total $h$ of the order of
+\SI{272}{\watt\per\meter\squared\per\kelvin}, the result is
+$Bi = \num{0.141}$: above the limit, though not by much. The piece is not
+isothermal, but it is not far from being so. That suggests the way forward:
+keep the lumped equation and add a profile correction to it.
 
-\subsection{Deducción de la corrección de perfil}
+\subsection{Derivation of the profile correction}
 
-Se admite que el perfil de temperaturas en el espesor es
-\emph{cuasiestacionario}, esto es, que toda la placa se calienta al mismo
-ritmo. Es una hipótesis razonable una vez transcurrido el transitorio
-inicial, y es la base del método del balance integral de calor\cita{4}.
+The temperature profile across the thickness is taken to be
+\emph{quasi-steady}, that is, the whole plate heats at the same rate. This
+is a reasonable assumption once the initial transient has passed, and it is
+the basis of the heat-balance integral method\cita{4}.
 
-Con calentamiento simétrico y $\partial T/\partial t$ uniforme, la ecuación
-de conducción unidimensional se reduce a:
+With symmetric heating and uniform $\partial T/\partial t$, the
+one-dimensional conduction equation reduces to:
 
 \begin{equation}
 k\, \frac{\mathrm{d}^{2}T}{\mathrm{d}x^{2}}
@@ -604,16 +597,16 @@ k\, \frac{\mathrm{d}^{2}T}{\mathrm{d}x^{2}}
 = \frac{q''}{L}
 \end{equation}
 
-donde la última igualdad procede del balance global de la placa,
-$\rho\, c_p\, L\, \dot{T}_{m} = q''$. Integrando dos veces, con flujo nulo
-en el plano medio por simetría, el perfil resulta parabólico:
+where the last equality comes from the global balance of the plate,
+$\rho\, c_p\, L\, \dot{T}_{m} = q''$. Integrating twice, with zero flux at
+the mid-plane by symmetry, the profile turns out to be parabolic:
 
 \begin{equation}
 T(x) = T_{c} + \frac{q'' \cdot x^{2}}{2\, k \cdot L}
 \end{equation}
 
-De aquí salen las dos constantes del modelo reducido. Evaluando en la
-superficie, $x = L$, y promediando el perfil sobre el espesor mediante
+From here come the two constants of the reduced model. Evaluating at the
+surface, $x = L$, and averaging the profile over the thickness through
 $T_{m} = \frac{1}{L}\int_{0}^{L} T(x)\,\mathrm{d}x$:
 
 \begin{align}
@@ -622,15 +615,15 @@ T_{m} - T_{c} &= \frac{q'' \cdot L}{6\, k} \\[0.3em]
 T_{s} - T_{m} &= \frac{q'' \cdot L}{3\, k}
 \end{align}
 
-Los coeficientes $1/3$ y $1/6$ no son ajustes empíricos: salen de integrar
-una parábola. El primero da la resistencia interna equivalente que se coloca
-en serie con la superficie; el segundo convierte la temperatura media en la
-del centro, que es la que interesa.
+The coefficients $1/3$ and $1/6$ are not empirical fits: they come from
+integrating a parabola. The first gives the equivalent internal resistance
+placed in series with the surface; the second converts the mean temperature
+into that of the centre, which is the one of interest.
 
-\subsection{La fórmula compacta}
+\subsection{The compact formula}
 
-Reuniendo todo, el modelo queda en cuatro expresiones, con la radiación
-intacta:
+Putting it all together, the model comes down to four expressions, with the
+radiation left intact:
 
 \begin{equation}
 \boxed{\;
@@ -644,35 +637,35 @@ T_{c} &= T_{m} - \frac{q'' \cdot L}{6\, k}
 \;}
 \end{equation}
 
-Es una sola ecuación diferencial ordinaria con dos correcciones algebraicas,
-integrable en cualquier hoja de cálculo. La constante de tiempo que gobierna
-el transitorio es:
+It is a single ordinary differential equation with two algebraic
+corrections, integrable in any spreadsheet. The time constant governing the
+transient is:
 
 \begin{equation}
 \tau = \frac{\rho \cdot c_p \cdot L}{h}
-\qquad \text{con} \qquad
+\qquad \text{with} \qquad
 h = h_{c} + h_{rad}
 \end{equation}
 
-\subsection{Dominio de validez}
+\subsection{Domain of validity}
 
-La fórmula trata la pastilla como una placa infinita que radia por sus dos
-caras: ignora el borde y no contempla soporte. El parámetro que controla su
-validez es, por tanto, la esbeltez $e/d$, que mide el peso relativo del
-canto frente a las caras. La \tab{1} recoge el contraste con el cálculo
-bidimensional.
+The formula treats the pellet as an infinite plate radiating from both
+faces: it ignores the rim and takes no account of a setter. The parameter
+controlling its validity is therefore the aspect ratio $e/d$, which
+measures the weight of the rim relative to the faces. \tab{1} collects the
+comparison with the two-dimensional calculation.
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 1.}} Desviación de la fórmula
-compacta respecto del cálculo bidimensional, en contacto puntual y con horno
-ideal, para un espesor fijo de \SI{1.5}{\milli\meter}. Obtenida con
-propiedades constantes, para aislar el efecto puramente geométrico del
-canto.}
+\caption*{\textcolor{uji}{\textbf{Table 1.}} Deviation of the compact
+formula from the two-dimensional calculation, with point contact and an
+ideal furnace, for a fixed thickness of \SI{1.5}{\milli\meter}. Obtained
+with constant properties, so as to isolate the purely geometric effect of
+the rim.}
 \begin{tabular}{ccccc}
 \toprule
 $d$ (\si{\milli\meter}) & $e/d$ & $t_{99}$ 2D (\si{\second})
-& $t_{99}$ compacta (\si{\second}) & Desviación \\
+& $t_{99}$ compact (\si{\second}) & Deviation \\
 \midrule
 \num{20} & \num{0.075} & \num{14.89} & \num{14.90} & \SI{0.1}{\percent} \\
 \num{16} & \num{0.094} & \num{14.68} & \num{14.90} & \SI{1.5}{\percent} \\
@@ -685,73 +678,73 @@ $d$ (\si{\milli\meter}) & $e/d$ & $t_{99}$ 2D (\si{\second})
 \end{tabular}
 \end{table}
 
-El criterio práctico que se desprende es $e/d < \num{0.10}$ para un error
-inferior al \SI{2}{\percent}, y $e/d < \num{0.12}$ para quedar por debajo
-del \SI{5}{\percent}. La fórmula es siempre \emph{conservadora}: al ignorar
-el área del canto subestima la superficie de intercambio y predice tiempos
-más largos que los reales, como muestra la \fig{2}.
+The practical criterion that follows is $e/d < \num{0.10}$ for an error
+below \SI{2}{\percent}, and $e/d < \num{0.12}$ to stay below
+\SI{5}{\percent}. The formula is always \emph{conservative}: by ignoring
+the area of the rim it understates the exchange surface and predicts longer
+times than the real ones, as \fig{2} shows.
 
-Conviene subrayar que la pastilla de referencia de este documento, con
-\SI{10}{\milli\meter} de diámetro y \SI{1.5}{\milli\meter} de espesor, tiene
-$e/d = \num{0.15}$ y queda justo en el límite: la fórmula compacta la
-predice un \SI{10}{\percent} más lenta de lo que resulta del cálculo
-completo. Para esta geometría concreta, la forma reducida sirve para razonar
-sobre tendencias, no para dar cifras.
+It is worth stressing that the reference pellet of this document, at
+\SI{10}{\milli\meter} in diameter and \SI{1.5}{\milli\meter} thick, has
+$e/d = \num{0.15}$ and sits right at the limit: the compact formula
+predicts it \SI{10}{\percent} slower than the full calculation does. For
+this particular geometry, the reduced form serves to reason about trends,
+not to give figures.
 
-\textbf{Con propiedades dependientes de la temperatura la discrepancia es
-mucho mayor.} Repetido el mismo contraste con las funciones medidas de la
-sección \ref{sec:propiedades}, la fórmula compacta da
-\SI{60.4}{\second} frente a los \SI{39.7}{\second} del cálculo
-bidimensional: un \SI{52}{\percent} de desviación. No es un fallo del
-ajuste, sino una consecuencia de la hipótesis: la reducción a dos parámetros
-exige propiedades constantes, y el calor específico del LATP varía más del
-doble a lo largo del recorrido térmico, de modo que ningún valor medio
-representa bien el transitorio completo. Con estos datos, la fórmula
-compacta deja de ser una herramienta de cálculo y queda únicamente como
-instrumento de razonamiento.
+\textbf{With temperature-dependent properties the discrepancy is much
+larger.} Repeating the same comparison with the measured functions of
+section \ref{sec:propiedades}, the compact formula gives
+\SI{60.4}{\second} against the \SI{39.7}{\second} of the two-dimensional
+calculation: a deviation of \SI{52}{\percent}. This is not a failure of the
+fit but a consequence of the assumption: the reduction to two parameters
+requires constant properties, and the specific heat of LATP varies by more
+than a factor of two over the thermal range, so that no mean value
+represents the whole transient well. With these data, the compact formula
+ceases to be a calculation tool and remains only as an instrument for
+reasoning.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_compacta.pdf}
-\caption{Temperatura del centro según el cálculo bidimensional y según la
-fórmula compacta, para la pastilla de referencia en contacto puntual y horno
-ideal. La fórmula ignora el canto, que en esta geometría supone el
-\SI{37}{\percent} del área expuesta, y por eso va por detrás.}
+\includegraphics[width=\linewidth]{fig_compact.pdf}
+\caption{Centre temperature from the two-dimensional calculation and from
+the compact formula, for the reference pellet in point contact and an ideal
+furnace. The formula ignores the rim, which in this geometry amounts to
+\SI{37}{\percent} of the exposed area, and that is why it lags behind.}
 \end{figure}
 
-Con soporte, la fórmula no es aplicable. El soporte añade una masa térmica
-que hay que calentar y bloquea una de las dos caras radiantes; ninguno de
-los dos efectos cabe en un modelo de un solo grado de libertad. En ese caso
-sirve únicamente como cota inferior: el tiempo que se alcanzaría si se
-eliminase el soporte.
+With a setter, the formula is not applicable. The setter adds a thermal
+mass that has to be heated and blocks one of the two radiating faces;
+neither effect fits in a model with a single degree of freedom. In that
+case it serves only as a lower bound: the time that would be reached if the
+setter were removed.
 
 % ==========================================================================
-\section{Magnitudes derivadas}
+\section{Derived quantities}
 
-\subsection{Velocidad de calentamiento}
+\subsection{Heating rate}
 
-La literatura de sinterización rápida se expresa en \si{\kelvin\per\minute}
-o \si{\kelvin\per\second}, de modo que la velocidad del punto más frío es la
-magnitud que permite situar un ensayo frente a la bibliografía:
+The fast-sintering literature is expressed in \si{\kelvin\per\minute} or
+\si{\kelvin\per\second}, so the rate at the coldest point is the quantity
+that allows a test to be placed against the published work:
 
 \begin{equation}
 \dot{T}_{c}(t) = \frac{\mathrm{d}T_{c}}{\mathrm{d}t}
 \end{equation}
 
-Conviene una advertencia numérica. Si esta derivada se evalúa sobre la curva
-almacenada para representación, el valor de pico depende del intervalo de
-muestreo y lo subestima apreciablemente. En el caso de referencia, el máximo
-pasaba de \num{55} a \SI{67.5}{\kelvin\per\second} al aumentar el número de
-puntos guardados. La derivada debe calcularse sobre el paso de tiempo propio
-del integrador.
+A numerical warning is in order. If this derivative is evaluated on the
+curve stored for plotting, the peak value depends on the sampling interval
+and understates it appreciably. In the reference case, the maximum went
+from \num{55} to \SI{67.5}{\kelvin\per\second} as the number of saved
+points was increased. The derivative must be computed on the integrator's
+own time step.
 
-\subsection{Tensión de origen térmico}
+\subsection{Thermal stress}
 
-Una pieza con gradiente térmico se dilata como un conjunto. Cada punto
-queda traccionado o comprimido según se aparte de la deformación media, de
-manera que el motor de la tensión no es la diferencia entre la cara y el
-centro, sino entre cada punto y la temperatura \emph{media} de la pieza.
-Para una placa con gradiente en el espesor y bordes libres:
+A piece with a thermal gradient expands as a whole. Each point ends up in
+tension or compression according to how far it departs from the mean
+strain, so that what drives the stress is not the difference between the
+face and the centre but between each point and the \emph{mean} temperature
+of the piece. For a plate with a through-thickness gradient and free edges:
 
 \begin{equation}
 \boxed{\;
@@ -760,296 +753,290 @@ Para una placa con gradiente en el espesor y bordes libres:
 \;}
 \end{equation}
 
-El factor $1/(1-\nu)$ aparece porque la dilatación está impedida en las dos
-direcciones del plano de la placa, no en una sola. Durante el calentamiento
-el centro queda por debajo de la media y entra en \emph{tracción}, que es el
-modo en que fallan las cerámicas, mientras la superficie queda comprimida.
+The factor $1/(1-\nu)$ appears because expansion is restrained in both
+in-plane directions of the plate, not in one alone. During heating the
+centre lags behind the mean and goes into \emph{tension}, which is how
+ceramics fail, while the surface is left in compression.
 
-El valor debe leerse como orden de magnitud. En verde, el módulo de Young es
-muy inferior al de la pieza densa, de modo que la tensión real es menor que
-la calculada con propiedades de material denso, pero también lo es la
-resistencia. La utilidad del cálculo está en comparar montajes, no en
-predecir la rotura.
+The value should be read as an order of magnitude. In the green state,
+Young's modulus is far below that of the dense piece, so the real stress is
+lower than the one computed with dense-material properties --- but so is
+the strength. The value of the calculation lies in comparing set-ups, not
+in predicting fracture.
 
 % ==========================================================================
-\section{Propiedades de los materiales}
+\section{Material properties}
 \label{sec:propiedades}
 
-Todas las propiedades térmicas y ópticas se introducen como función de la
-temperatura absoluta, en kelvin. El modelo las trata según se describe en el
-apartado \ref{sec:entalpia}.
+All thermal and optical properties are entered as functions of the absolute
+temperature, in kelvin. The model treats them as described in
+section \ref{sec:entalpia}.
 
-\subsection{Electrolito: LATP}
+\subsection{Electrolyte: LATP}
 
 \begin{equation}
 \begin{aligned}
-k(T) &= -2{,}016\cdot10^{-17}\,T^{6} + 1{,}278\cdot10^{-13}\,T^{5}
-      - 3{,}236\cdot10^{-10}\,T^{4} \\
-     &\quad + 4{,}090\cdot10^{-7}\,T^{3} - 2{,}673\cdot10^{-4}\,T^{2}
-      + 8{,}585\cdot10^{-2}\,T - 9{,}700
+k(T) &= -2.016\cdot10^{-17}\,T^{6} + 1.278\cdot10^{-13}\,T^{5}
+      - 3.236\cdot10^{-10}\,T^{4} \\
+     &\quad + 4.090\cdot10^{-7}\,T^{3} - 2.673\cdot10^{-4}\,T^{2}
+      + 8.585\cdot10^{-2}\,T - 9.700
 \end{aligned}
 \end{equation}
 
 \begin{equation}
 \begin{aligned}
-c_p(T) &= -6{,}414\cdot10^{-14}\,T^{6} + 3{,}680\cdot10^{-10}\,T^{5}
-        - 8{,}507\cdot10^{-7}\,T^{4} \\
-       &\quad + 9{,}983\cdot10^{-4}\,T^{3} - 6{,}179\cdot10^{-1}\,T^{2}
-        + 1{,}899\cdot10^{2}\,T - 2{,}091\cdot10^{4}
+c_p(T) &= -6.414\cdot10^{-14}\,T^{6} + 3.680\cdot10^{-10}\,T^{5}
+        - 8.507\cdot10^{-7}\,T^{4} \\
+       &\quad + 9.983\cdot10^{-4}\,T^{3} - 6.179\cdot10^{-1}\,T^{2}
+        + 1.899\cdot10^{2}\,T - 2.091\cdot10^{4}
 \end{aligned}
 \end{equation}
 
 \begin{equation}
-\varepsilon(T) = 5{,}600\cdot10^{-4}\,T + 1{,}210\cdot10^{-1}
+\varepsilon(T) = 5.600\cdot10^{-4}\,T + 1.210\cdot10^{-1}
 \qquad
-\alpha(T) = 9{,}774\cdot10^{-11}\,T + 1{,}486\cdot10^{-7}
+\alpha(T) = 9.774\cdot10^{-11}\,T + 1.486\cdot10^{-7}
 \end{equation}
 
-La emisividad y el calor específico proceden de medidas propias: la primera
-con pirómetro en el laboratorio, el segundo según se recoge en el artículo
-sobre sinterización rápida. La conductividad no es una medida independiente:
-se obtiene a partir de la linealización de los valores medidos de
-difusividad y su posterior ajuste a un polinomio de sexto grado.
+The emissivity and the specific heat come from our own measurements: the
+first with a pyrometer in the laboratory, the second as reported in the
+fast-sintering article. The conductivity is not an independent measurement:
+it is obtained by linearising the measured diffusivity values and then
+fitting a sixth-order polynomial.
 
-\subsection{Soporte: alúmina}
-
-\begin{equation}
-k(T) = 1{,}912\cdot10^{-5}\,T^{2} - 5{,}025\cdot10^{-2}\,T + 3{,}866\cdot10^{1}
-\end{equation}
+\subsection{Setter: alumina}
 
 \begin{equation}
-c_p(T) = 9{,}052\cdot10^{2} + 3{,}678\cdot10^{-1}\,T
-         - 2{,}142\cdot10^{-3}\,T^{-2}
+k(T) = 1.912\cdot10^{-5}\,T^{2} - 5.025\cdot10^{-2}\,T + 3.866\cdot10^{1}
 \end{equation}
 
 \begin{equation}
-\varepsilon(T) = 7{,}314\cdot10^{-4}\,T - 1{,}774\cdot10^{-1}
+c_p(T) = 9.052\cdot10^{2} + 3.678\cdot10^{-1}\,T
+         - 2.142\cdot10^{-3}\,T^{-2}
 \end{equation}
 
-El calor específico procede de \emph{Tablas cerámicas} (Enrique Navarro,
-1984) y la conductividad del \emph{CRC Handbook of Materials Science and
-Engineering}. La emisividad se ha medido en el laboratorio con pirómetro,
-igual que la del LATP.
+\begin{equation}
+\varepsilon(T) = 7.314\cdot10^{-4}\,T - 1.774\cdot10^{-1}
+\end{equation}
+
+The specific heat comes from \emph{Tablas cerámicas} (Enrique Navarro,
+1984) and the conductivity from the \emph{CRC Handbook of Materials Science
+and Engineering}. The emissivity was measured in the laboratory with a
+pyrometer, as was that of LATP.
 
 \begin{figure}[htbp]
 \centering
 \includegraphics[width=\linewidth]{fig_props.pdf}
-\caption{Las seis funciones empleadas, en su rango de validez. La línea de
-puntos del panel central marca el límite de Dulong y Petit para el LATP,
-que el ajuste del calor específico supera en todo el intervalo; la banda
-verde del panel derecho señala el intervalo en que se midió la emisividad,
-fuera del cual las rectas son extrapolación.}
+\caption{The six functions used, over their validity range. The dotted line
+in the centre panel marks the Dulong--Petit limit for LATP, which the
+specific-heat fit exceeds over the whole interval; the green band in the
+right-hand panel marks the interval over which the emissivity was measured,
+outside which the straight lines are extrapolation.}
 \end{figure}
 
-\subsection{Coherencia interna y densidad del LATP}
+\subsection{Internal consistency and the density of LATP}
 
-Las tres funciones medidas del LATP no son independientes entre sí, puesto
-que la conductividad se dedujo de la difusividad. Esa dependencia permite
-una comprobación: si todas son mutuamente consistentes, el cociente
+The three measured LATP functions are not independent of one another, since
+the conductivity was derived from the diffusivity. That dependence allows a
+check: if all three are mutually consistent, the ratio
 
 \begin{equation}
 \rho = \frac{k(T)}{\alpha(T) \cdot c_p(T)}
 \end{equation}
 
-debe resultar constante. Evaluado entre \SI{400}{\kelvin} y
-\SI{1200}{\kelvin} da \SI{2990}{\kilogram\per\meter\cubed} con una
-dispersión del \SI{3}{\percent}, valor coherente con un LATP denso. La
-densidad empleada en el modelo es esa, y no un dato independiente.
+must come out constant. Evaluated between \SI{400}{\kelvin} and
+\SI{1200}{\kelvin} it gives \SI{2990}{\kilogram\per\meter\cubed} with a
+scatter of \SI{3}{\percent}, a value consistent with a dense LATP. That is
+the density used in the model, and it is not an independent datum.
 
-\subsection{Rango de validez y recorte}
+\subsection{Validity range and clamping}
 
-Fuera del intervalo \SIrange{373}{1473}{\kelvin} los ajustes dejan de tener
-sentido físico, como recoge la \tab{2}. Los polinomios de sexto grado del
-LATP cruzan el cero y se vuelven negativos por encima de
-\SI{1500}{\kelvin}, y ambas emisividades superan la unidad por encima de
-\SI{1570}{\kelvin}. El modelo mantiene por ello el valor del extremo fuera
-del rango declarado, en lugar de extrapolar.
+Outside the interval \SIrange{373}{1473}{\kelvin} the fits cease to make
+physical sense, as \tab{2} records. The sixth-order LATP polynomials cross
+zero and turn negative above \SI{1500}{\kelvin}, and both emissivities
+exceed unity above \SI{1570}{\kelvin}. The model therefore holds the
+endpoint value outside the declared range instead of extrapolating.
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 2.}} Comportamiento de los ajustes
-dentro y fuera del rango de validez.}
+\caption*{\textcolor{uji}{\textbf{Table 2.}} Behaviour of the fits inside
+and outside the validity range.}
 \begin{tabular}{lccc}
 \toprule
-Función & \SI{373}{\kelvin} & \SI{1473}{\kelvin} & Fuera de rango \\
+Function & \SI{373}{\kelvin} & \SI{1473}{\kelvin} & Outside the range \\
 \midrule
-$k$ LATP & \num{0.96} & \num{0.84} & $<0$ por encima de \SI{1540}{\kelvin} \\
-$c_p$ LATP & \num{1779} & \num{585} & $<0$ por encima de \SI{1510}{\kelvin} \\
-$\varepsilon$ LATP & \num{0.33} & \num{0.95} & $>1$ por encima de \SI{1570}{\kelvin} \\
-$k$ alúmina & \num{22.6} & \num{6.1} & mínimo en \SI{1314}{\kelvin} \\
-$c_p$ alúmina & \num{1042} & \num{1447} & monótona \\
-$\varepsilon$ alúmina & \num{0.10} & \num{0.90} & $>1$ por encima de \SI{1610}{\kelvin} \\
+$k$ LATP & \num{0.96} & \num{0.84} & $<0$ above \SI{1540}{\kelvin} \\
+$c_p$ LATP & \num{1779} & \num{585} & $<0$ above \SI{1510}{\kelvin} \\
+$\varepsilon$ LATP & \num{0.33} & \num{0.95} & $>1$ above \SI{1570}{\kelvin} \\
+$k$ alumina & \num{22.6} & \num{6.1} & minimum at \SI{1314}{\kelvin} \\
+$c_p$ alumina & \num{1042} & \num{1447} & monotonic \\
+$\varepsilon$ alumina & \num{0.10} & \num{0.90} & $>1$ above \SI{1610}{\kelvin} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{Dos reservas sobre los datos}
+\subsection{Two reservations about the data}
 \label{sec:reservas}
 
-\textbf{El calor específico del LATP excede el límite clásico.} El valor
-máximo que puede alcanzar el calor específico de un sólido cristalino por
-agitación térmica lo fija la ley de Dulong y Petit, que asigna $3R$ por mol
-de átomos:
+\textbf{The specific heat of LATP exceeds the classical limit.} The highest
+value the specific heat of a crystalline solid can reach through thermal
+agitation is set by the Dulong--Petit law, which assigns $3R$ per mole of
+atoms:
 
 \begin{equation}
-c_{p,\max} = \frac{3R \cdot n_{\text{átomos}}}{M}
-= \frac{3 \cdot 8{,}314 \cdot 18{,}3}{0{,}3834}
+c_{p,\max} = \frac{3R \cdot n_{\text{atoms}}}{M}
+= \frac{3 \cdot 8.314 \cdot 18.3}{0.3834}
 \approx \SI{1190}{\joule\per\kilogram\per\kelvin}
 \end{equation}
 
-para Li$_{1,3}$Al$_{0,3}$Ti$_{1,7}$(PO$_4$)$_3$, de masa molar
-\SI{383.4}{\gram\per\mole} y \num{18.3} átomos por fórmula. El ajuste
-empleado da entre \num{1.4} y \num{2.2} veces ese límite en todo el
-intervalo de trabajo, con un máximo de
-\SI{2598}{\joule\per\kilogram\per\kelvin} a \SI{1073}{\kelvin}.
+for Li$_{1.3}$Al$_{0.3}$Ti$_{1.7}$(PO$_4$)$_3$, of molar mass
+\SI{383.4}{\gram\per\mole} and \num{18.3} atoms per formula unit. The fit
+used gives between \num{1.4} and \num{2.2} times that limit over the whole
+working interval, with a maximum of
+\SI{2598}{\joule\per\kilogram\per\kelvin} at \SI{1073}{\kelvin}.
 
-Un calor específico \emph{sensible} no puede superar ese techo. La lectura
-compatible con el dato es que se trate de un calor específico
-\emph{aparente}, obtenido por calorimetría diferencial durante el
-calentamiento, que incorpora la entalpía de las transformaciones que ocurren
-en ese intervalo. Si es así, el dato es legítimo y el modelo lo trata
-correctamente: la formulación entálpica del apartado \ref{sec:entalpia}
-absorbe sin modificación cualquier calor latente. Conviene, en todo caso,
-nombrarlo como calor específico aparente y no compararlo con valores
-tabulados de calor sensible.
+A \emph{sensible} specific heat cannot exceed that ceiling. The reading
+consistent with the datum is that it is an \emph{apparent} specific heat,
+obtained by differential scanning calorimetry during heating, which
+incorporates the enthalpy of the transformations occurring in that
+interval. If so, the datum is legitimate and the model treats it correctly:
+the enthalpy formulation of section \ref{sec:entalpia} absorbs any latent
+heat without modification. It should in any case be named an apparent
+specific heat and not compared with tabulated values of sensible heat.
 
-\textbf{El término en $T^{-2}$ del calor específico de la alúmina es
-numéricamente nulo.} Con el coeficiente $2{,}142\cdot10^{-3}$ ese sumando
-vale $-1{,}5\cdot10^{-8}$ a \SI{373}{\kelvin}, esto es, diez órdenes de
-magnitud por debajo del resto de la expresión. Los ajustes del tipo
-Maier--Kelley para la alúmina llevan en esa posición un coeficiente del
-orden de $10^{7}$; con él, el calor específico a \SI{373}{\kelvin} pasaría
-de \num{1042} a \SI{888}{\joule\per\kilogram\per\kelvin}, que es el valor
-habitualmente tabulado. Procede verificar el exponente en la fuente
-original.
+\textbf{The $T^{-2}$ term in the specific heat of alumina is numerically
+null.} With the coefficient $2.142\cdot10^{-3}$ that term is worth
+$-1.5\cdot10^{-8}$ at \SI{373}{\kelvin}, that is, ten orders of magnitude
+below the rest of the expression. Maier--Kelley fits for alumina carry a
+coefficient of the order of $10^{7}$ in that position; with it, the
+specific heat at \SI{373}{\kelvin} would go from \num{1042} to
+\SI{888}{\joule\per\kilogram\per\kelvin}, which is the commonly tabulated
+value. The exponent should be verified against the original source.
 
 % ==========================================================================
-\section{Resultados del caso de referencia}
+\section{Results for the reference case}
 
-\subsection{Evolución térmica}
+\subsection{Thermal evolution}
 
-La \fig{4} recoge la evolución de la temperatura en los puntos
-característicos de la pieza. El soporte, que parte frío y tiene una masa
-térmica considerable, se calienta más despacio que la muestra y actúa como
-sumidero sobre su cara inferior durante todo el transitorio.
+\fig{4} collects the temperature evolution at the characteristic points of
+the piece. The setter, which starts cold and has a considerable thermal
+mass, heats more slowly than the sample and acts as a sink on its bottom
+face throughout the transient.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_curvas.pdf}
-\caption{Evolución de la temperatura en el centro, las caras, el borde y el
-soporte, frente a la temperatura de las paredes del horno. La línea de
-puntos marca el \SI{99}{\percent} del salto térmico.}
+\includegraphics[width=\linewidth]{fig_curves.pdf}
+\caption{Temperature evolution at the centre, the faces, the rim and the
+setter, against the temperature of the furnace walls. The dotted line marks
+\SI{99}{\percent} of the thermal range.}
 \end{figure}
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 3.}} Resultados del caso de
-referencia: pastilla de LATP de \SI{10}{\milli\meter} de diámetro y
-\SI{1.5}{\milli\meter} de espesor sobre soporte de alúmina de
-\SI{3}{\milli\meter}, introducida a \SI{100}{\celsius} en un horno a
-\SI{1200}{\celsius}.}
+\caption*{\textcolor{uji}{\textbf{Table 3.}} Results for the reference
+case: a LATP pellet \SI{10}{\milli\meter} in diameter and
+\SI{1.5}{\milli\meter} thick on a \SI{3}{\milli\meter} alumina setter,
+introduced at \SI{100}{\celsius} into a furnace at \SI{1200}{\celsius}.}
 \begin{tabular}{lll}
 \toprule
-Magnitud & Valor & Observación \\
+Quantity & Value & Remark \\
 \midrule
-$t_{50}$ del centro & \SI{32.4}{\second} & \\
-$t_{90}$ del centro & \SI{58.2}{\second} & \\
-$t_{99}$ del centro & \SI{78.3}{\second} & tiempo de puesta a régimen \\
-Desfase cara--centro & \SI{68}{\kelvin} & máximo del transitorio \\
-Desfase media--centro & \SI{52}{\kelvin} & motor de la tensión \\
-Velocidad máxima & \SI{19.5}{\kelvin\per\second} & \SI{1170}{\kelvin\per\minute} \\
-Tracción máxima en el centro & \SI{70}{\mega\pascal} & con propiedades de material denso \\
-$h_{rad}$ medio & \SI{262}{\watt\per\meter\squared\per\kelvin} & frente a \SI{10}{} de convección \\
-$Bi$ & \num{0.141} & por encima del límite de \num{0.1} \\
-$\tau$ & \SI{16.4}{\second} & constante de tiempo \\
-Paso de tiempo & \SI{0.39}{\milli\second} & malla $16 \times 33$ \\
+$t_{50}$ of the centre & \SI{32.4}{\second} & \\
+$t_{90}$ of the centre & \SI{58.2}{\second} & \\
+$t_{99}$ of the centre & \SI{78.3}{\second} & settling time \\
+Face--centre lag & \SI{68}{\kelvin} & maximum of the transient \\
+Mean--centre lag & \SI{52}{\kelvin} & what drives the stress \\
+Maximum rate & \SI{19.5}{\kelvin\per\second} & \SI{1170}{\kelvin\per\minute} \\
+Maximum tension at the centre & \SI{70}{\mega\pascal} & with dense-material properties \\
+Mean $h_{rad}$ & \SI{262}{\watt\per\meter\squared\per\kelvin} & against \SI{10}{} for convection \\
+$Bi$ & \num{0.141} & above the limit of \num{0.1} \\
+$\tau$ & \SI{16.4}{\second} & time constant \\
+Time step & \SI{0.39}{\milli\second} & mesh $16 \times 33$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-La \fig{5} muestra los perfiles internos. El perfil axial es
-\emph{monótono y fuertemente asimétrico}: la cara superior, que ve el horno,
-va siempre por delante, y la inferior queda retrasada por el contacto con el
-soporte frío. Conviene subrayar que esto no contradice la hipótesis de
-perfil parabólico de la sección \ref{sec:agrupado}, pero sí acota su
-alcance: aquella parábola es simétrica y supone calentamiento por las dos
-caras, de modo que describe el caso de contacto puntual, no el de una pieza
-apoyada sobre un soporte macizo. Es una razón más por la que la fórmula
-compacta no es aplicable con soporte.
+\fig{5} shows the internal profiles. The axial profile is \emph{monotonic
+and strongly asymmetric}: the top face, which sees the furnace, is always
+ahead, and the bottom one is held back by contact with the cold setter. It
+is worth stressing that this does not contradict the parabolic-profile
+assumption of section \ref{sec:agrupado}, but it does bound its scope: that
+parabola is symmetric and assumes heating from both faces, so it describes
+the point-contact case, not that of a piece resting on a solid setter. It
+is one more reason why the compact formula is not applicable with a setter.
 
-El perfil radial, en cambio, es casi plano salvo en una franja próxima al
-borde, tal como anticipaba la estimación de escalas de la \ecu{6}.
+The radial profile, by contrast, is almost flat except for a band close to
+the rim, just as the scale estimate of \ecu{6} anticipated.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_perfiles.pdf}
-\caption{Perfiles de temperatura en el espesor de la muestra, sobre el eje,
-y en el radio, sobre el plano medio, en distintos instantes. La cota
-\SI{0}{\milli\meter} es la cara en contacto con el soporte y
-\SI{1.5}{\milli\meter} la que ve el horno. Los puntos señalan los nodos de
-la malla.}
+\includegraphics[width=\linewidth]{fig_profiles.pdf}
+\caption{Temperature profiles across the thickness of the sample, on the
+axis, and across the radius, on the mid-plane, at different instants. The
+\SI{0}{\milli\meter} ordinate is the face in contact with the setter and
+\SI{1.5}{\milli\meter} the one that sees the furnace. The dots mark the
+mesh nodes.}
 \end{figure}
 
-\subsection{Velocidad y tensión}
+\subsection{Rate and stress}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_velocidad.pdf}
-\caption{Velocidad de calentamiento del centro y tensión de origen térmico.
-El centro trabaja a tracción y la superficie a compresión, con el máximo en
-los primeros segundos.}
+\includegraphics[width=\linewidth]{fig_rate.pdf}
+\caption{Heating rate of the centre and thermal stress. The centre works in
+tension and the surface in compression, with the maximum in the first few
+seconds.}
 \end{figure}
 
-La velocidad máxima del centro, \SI{1170}{\kelvin\per\minute}, sitúa el
-ensayo en el régimen de sinterización rápida, aunque lejos de los valores
-que se obtendrían con una masa térmica menor. El máximo de tensión no
-coincide con el de velocidad sino que se alcanza unos segundos después,
-cuando el gradiente interno es mayor.
+The maximum rate at the centre, \SI{1170}{\kelvin\per\minute}, places the
+test in the fast-sintering regime, though far from the values that would be
+obtained with a smaller thermal mass. The stress maximum does not coincide
+with the rate maximum but is reached a few seconds later, when the internal
+gradient is larger.
 
-\subsection{Comparación con una rampa programada}
+\subsection{Comparison with a programmed ramp}
 
-La \fig{7} enfrenta la introducción directa en el horno caliente con una
-rampa convencional de \SI{600}{\celsius\per\minute} hasta la misma
-consigna.
+\fig{7} sets direct introduction into the hot furnace against a
+conventional ramp of \SI{600}{\celsius\per\minute} to the same setpoint.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_rampa.pdf}
-\caption{Introducción directa frente a rampa programada de
-\SI{600}{\celsius\per\minute}: temperatura del centro y tensión asociada.}
+\includegraphics[width=\linewidth]{fig_ramp.pdf}
+\caption{Direct introduction against a programmed ramp of
+\SI{600}{\celsius\per\minute}: centre temperature and associated stress.}
 \end{figure}
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 4.}} Comparación de los dos
-programas térmicos.}
+\caption*{\textcolor{uji}{\textbf{Table 4.}} Comparison of the two thermal
+programmes.}
 \begin{tabular}{lcc}
 \toprule
- & Introducción directa & Rampa de \SI{600}{\celsius\per\minute} \\
+ & Direct introduction & Ramp of \SI{600}{\celsius\per\minute} \\
 \midrule
-$t_{99}$ del centro & \SI{78.3}{\second} & \SI{160.6}{\second} \\
-Velocidad máxima & \SI{19.5}{\kelvin\per\second} & \SI{19.5}{\kelvin\per\second} \\
-Desfase cara--centro & \SI{68}{\kelvin} & \SI{39}{\kelvin} \\
-Tracción en el centro & \SI{70}{\mega\pascal} & \SI{66}{\mega\pascal} \\
+$t_{99}$ of the centre & \SI{78.3}{\second} & \SI{160.6}{\second} \\
+Maximum rate & \SI{19.5}{\kelvin\per\second} & \SI{19.5}{\kelvin\per\second} \\
+Face--centre lag & \SI{68}{\kelvin} & \SI{39}{\kelvin} \\
+Tension at the centre & \SI{70}{\mega\pascal} & \SI{66}{\mega\pascal} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Con las propiedades medidas el canje habitual de la sinterización rápida
-casi desaparece: la introducción directa es el doble de rápida y la tensión
-apenas sube, de \SI{66}{\mega\pascal} a \SI{70}{\mega\pascal}. La razón está
-en el número de Biot, que con estas propiedades vale \num{0.141}: la
-pastilla está cerca de ser isoterma, de modo que acelerar el calentamiento
-no genera gradientes internos apreciables. El factor limitante no es la
-conducción dentro de la pieza, sino la energía que hay que suministrarle.
+With the measured properties, the usual trade-off of fast sintering almost
+disappears: direct introduction is twice as fast and the stress barely
+rises, from \SI{66}{\mega\pascal} to \SI{70}{\mega\pascal}. The reason lies
+in the Biot number, which with these properties is \num{0.141}: the pellet
+is close to being isothermal, so accelerating the heating generates no
+appreciable internal gradients. The limiting factor is not conduction
+inside the piece but the energy that has to be supplied to it.
 
 % ==========================================================================
-\section{Validación del código}
+\section{Code validation}
 
-\subsection{Contraste con la solución analítica}
+\subsection{Comparison with the analytical solution}
 
-El caso de prueba es la placa plana infinita con convección superficial,
-cuya solución exacta en serie es conocida\cita{2,1}:
+The test case is the infinite flat plate with surface convection, whose
+exact series solution is known\cita{2,1}:
 
 \begin{equation}
 \theta = \frac{T - T_{\infty}}{T_{0} - T_{\infty}}
@@ -1057,9 +1044,9 @@ cuya solución exacta en serie es conocida\cita{2,1}:
   \cos\left( \lambda_{n}\, \frac{x}{L} \right)
 \end{equation}
 
-donde los autovalores $\lambda_{n}$ son las raíces de la ecuación
-trascendente que impone la condición de contorno convectiva, y los
-coeficientes proceden de la ortogonalidad de los modos:
+where the eigenvalues $\lambda_{n}$ are the roots of the transcendental
+equation imposed by the convective boundary condition, and the coefficients
+follow from the orthogonality of the modes:
 
 \begin{equation}
 \lambda_{n} \tan \lambda_{n} = Bi
@@ -1070,23 +1057,24 @@ C_{n} = \frac{4 \sin \lambda_{n}}
 Fo = \frac{\alpha \cdot t}{L^{2}}
 \end{equation}
 
-El número de Fourier $Fo$ es el tiempo adimensional del problema: compara el
-tiempo transcurrido con el tiempo característico de difusión $L^{2}/\alpha$.
+The Fourier number $Fo$ is the dimensionless time of the problem: it
+compares the elapsed time with the characteristic diffusion time
+$L^{2}/\alpha$.
 
-La prueba se realiza con $Bi = 1$, desactivando la radiación y empleando un
-cilindro suficientemente ancho para que el eje se comporte como una placa.
-Sumando veinte términos de la serie, el error máximo para $Fo > \num{0.05}$
-se recoge en la \tab{5}. El contraste verifica simultáneamente la
-discretización espacial, el tratamiento de la superficie y el paso de
-tiempo.
+The test is run at $Bi = 1$, with radiation switched off and using a
+cylinder wide enough for the axis to behave as a plate. Summing twenty
+terms of the series, the maximum error for $Fo > \num{0.05}$ is collected
+in \tab{5}. The comparison verifies the spatial discretisation, the
+treatment of the surface and the time step simultaneously.
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 5.}} Error máximo frente a la serie
-analítica, en porcentaje del salto térmico total, al refinar la malla.}
+\caption*{\textcolor{uji}{\textbf{Table 5.}} Maximum error against the
+analytical series, as a percentage of the total thermal range, on mesh
+refinement.}
 \begin{tabular}{ccc}
 \toprule
-Celdas en el semiespesor & Error máximo & Razón respecto al anterior \\
+Cells across the half-thickness & Maximum error & Ratio to the previous row \\
 \midrule
 \num{10} & \SI{0.338}{\percent} & --- \\
 \num{20} & \SI{0.084}{\percent} & \num{4.0} \\
@@ -1096,67 +1084,66 @@ Celdas en el semiespesor & Error máximo & Razón respecto al anterior \\
 \end{tabular}
 \end{table}
 
-El error se divide exactamente por cuatro cada vez que se duplica el número
-de celdas. Ese factor es la firma de un esquema de \emph{segundo orden} en
-el espacio, que es lo que corresponde a una discretización por volúmenes
-finitos centrada: el error debe escalar como $\Delta z^{2}$. La convergencia
-observada confirma que la implementación no contiene errores de primer orden
-ocultos, lo que un único cálculo contrastado nunca podría demostrar.
+The error is divided exactly by four each time the number of cells is
+doubled. That factor is the signature of a \emph{second-order} scheme in
+space, which is what a centred finite-volume discretisation should give:
+the error must scale as $\Delta z^{2}$. The observed convergence confirms
+that the implementation contains no hidden first-order errors, something a
+single checked calculation could never demonstrate.
 
-Merece la pena señalar que la aproximación de un solo término de la serie,
-válida solo para $Fo > \num{0.2}$, difiere del cálculo completo en un
-\SI{1.4}{\percent}: un contraste riguroso exige la serie entera.
+It is worth noting that the one-term approximation to the series, valid
+only for $Fo > \num{0.2}$, differs from the full calculation by
+\SI{1.4}{\percent}: a rigorous comparison requires the whole series.
 
-\subsection{Independencia de malla}
+\subsection{Mesh independence}
 
-Verificar la convergencia frente a una solución exacta no basta, porque el
-caso real incluye dos materiales y una condición radiativa. Se repiten por
-ello cuatro configuraciones con tres resoluciones, entre \num{8} y \num{22}
-celdas en el espesor de la muestra.
+Verifying convergence against an exact solution is not enough, because the
+real case involves two materials and a radiative condition. Four
+configurations are therefore repeated at three resolutions, between \num{8}
+and \num{22} cells across the thickness of the sample.
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 6.}} Tiempo hasta el
-\SI{99}{\percent} del salto térmico en el centro, para tres resoluciones de
-malla. Pastilla de \SI{10}{\milli\meter} de diámetro.}
+\caption*{\textcolor{uji}{\textbf{Table 6.}} Time to \SI{99}{\percent} of
+the thermal range at the centre, for three mesh resolutions. Pellet
+\SI{10}{\milli\meter} in diameter.}
 \begin{tabular}{lcccc}
 \toprule
-Montaje & 8 celdas & 14 celdas & 22 celdas & Dispersión \\
+Set-up & 8 cells & 14 cells & 22 cells & Scatter \\
 \midrule
-Contacto puntual                 & \SI{43.8}{\second} & \SI{43.7}{\second} & \SI{43.7}{\second} & \SI{0.2}{\percent} \\
-Soporte de \SI{1}{\milli\meter}  & \SI{58.1}{\second} & \SI{55.7}{\second} & \SI{56.1}{\second} & \SI{4.3}{\percent} \\
-Soporte de \SI{2}{\milli\meter}  & \SI{80.8}{\second} & \SI{78.3}{\second} & \SI{77.6}{\second} & \SI{4.1}{\percent} \\
-Soporte de \SI{5}{\milli\meter}  & \SI{138.9}{\second} & \SI{136.8}{\second} & \SI{135.9}{\second} & \SI{2.2}{\percent} \\
+Point contact                     & \SI{43.8}{\second} & \SI{43.7}{\second} & \SI{43.7}{\second} & \SI{0.2}{\percent} \\
+Setter of \SI{1}{\milli\meter}    & \SI{58.1}{\second} & \SI{55.7}{\second} & \SI{56.1}{\second} & \SI{4.3}{\percent} \\
+Setter of \SI{2}{\milli\meter}    & \SI{80.8}{\second} & \SI{78.3}{\second} & \SI{77.6}{\second} & \SI{4.1}{\percent} \\
+Setter of \SI{5}{\milli\meter}    & \SI{138.9}{\second} & \SI{136.8}{\second} & \SI{135.9}{\second} & \SI{2.2}{\percent} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-La dispersión llega ahora al \SI{4}{\percent}, frente al \SI{1}{\percent}
-que se obtenía con propiedades constantes. El motivo es el redondeo del
-número de celdas con que se representa el soporte, que con propiedades
-dependientes de la temperatura desplaza además el punto en que se evalúan.
-La malla intermedia es la que se emplea en los resultados; la más gruesa
-sigue siendo suficiente para explorar tendencias, que es lo que abarata el
-análisis de sensibilidad de la sección siguiente.
+The scatter now reaches \SI{4}{\percent}, against the \SI{1}{\percent}
+obtained with constant properties. The cause is the rounding of the number
+of cells used to represent the setter, which with temperature-dependent
+properties also shifts the point at which they are evaluated. The
+intermediate mesh is the one used in the results; the coarsest one remains
+sufficient for exploring trends, which is what makes the sensitivity
+analysis of the next section affordable.
 
-\subsection{Alcance de la validación}
+\subsection{Scope of the validation}
 
-La validación confirma que las ecuaciones planteadas se resuelven
-correctamente. No confirma que sean las ecuaciones correctas para un horno
-concreto. Esto último exige una medida experimental, y se discute a
-continuación.
+The validation confirms that the equations as posed are solved correctly. It
+does not confirm that they are the right equations for a particular
+furnace. That requires an experimental measurement, and is discussed below.
 
 % ==========================================================================
-\section{Análisis de sensibilidad}
+\section{Sensitivity analysis}
 
-\subsection{Elasticidad como indicador}
+\subsection{Elasticity as an indicator}
 
-Un modelo con diecisiete variables de entrada no es útil si no se sabe
-cuáles gobiernan el resultado. El indicador adecuado para compararlas no es
-la derivada $\partial t_{99}/\partial x$, porque sus unidades dependen de la
-variable y su valor numérico, de la elección de unidades. Se emplea en su
-lugar la \emph{elasticidad}, que es la derivada en escala logarítmica y por
-tanto adimensional:
+A model with seventeen input variables is of no use unless one knows which
+of them govern the result. The right indicator for comparing them is not
+the derivative $\partial t_{99}/\partial x$, because its units depend on the
+variable and its numerical value on the choice of units. The
+\emph{elasticity} is used instead, which is the derivative on a logarithmic
+scale and is therefore dimensionless:
 
 \begin{equation}
 \boxed{\;
@@ -1166,235 +1153,237 @@ S = \frac{\mathrm{d}\left( \ln t_{99} \right)}
 \;}
 \end{equation}
 
-Su lectura es directa: $S = 1$ indica proporcionalidad, de modo que duplicar
-la variable duplica el tiempo; $S = 0$ indica que la variable no influye; un
-valor negativo indica que al aumentar la variable disminuye el tiempo.
-Equivalentemente, duplicar una variable multiplica el tiempo por $2^{S}$.
+It reads directly: $S = 1$ indicates proportionality, so that doubling the
+variable doubles the time; $S = 0$ indicates that the variable has no
+influence; a negative value indicates that increasing the variable
+decreases the time. Equivalently, doubling a variable multiplies the time
+by $2^{S}$.
 
-En la práctica se evalúa por diferencias centradas:
+In practice it is evaluated by central differences:
 
 \begin{equation}
 S \approx \frac{\ln t_{99}(x^{+}) - \ln t_{99}(x^{-})}
                {\ln x^{+} - \ln x^{-}}
 \end{equation}
 
-\subsection{Una precaución metodológica}
+\subsection{A methodological caution}
 
-La perturbación empleada es del \SI{\pm 22}{\percent}, deliberadamente
-amplia. Con perturbaciones pequeñas, del orden del \SI{\pm 5}{\percent}, el
-resultado de las variables débiles queda enterrado en el ruido de
-discretización: al modificar un espesor cambia el número de celdas con que
-se representa el soporte, y puesto que la masa del soporte tiene una
-elasticidad próxima a \num{0.6}, ese redondeo introduce saltos del orden del
-\SI{1}{\percent} en $t_{99}$, del mismo orden que la señal buscada. Con
-\SI{\pm 5}{\percent} el espesor de la muestra llegaba a salir con signo
-negativo, en contradicción con el barrido amplio. Las elasticidades que
-siguen son, por tanto, secantes sobre un intervalo finito y no derivadas
-puntuales.
+The perturbation used is \SI{\pm 22}{\percent}, deliberately wide. With
+small perturbations, of the order of \SI{\pm 5}{\percent}, the result for
+the weak variables is buried in discretisation noise: changing a thickness
+changes the number of cells used to represent the setter, and since the
+mass of the setter has an elasticity close to \num{0.6}, that rounding
+introduces jumps of the order of \SI{1}{\percent} in $t_{99}$, of the same
+order as the signal being sought. At \SI{\pm 5}{\percent} the thickness of
+the sample even came out with a negative sign, in contradiction with the
+wide sweep. The elasticities that follow are therefore secant values over a
+finite interval and not point derivatives.
 
-\subsection{Resultados}
+\subsection{Results}
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\linewidth]{fig_tornado.pdf}
-\caption{Elasticidad del tiempo de calentamiento respecto de cada variable
-de entrada. En rojo, las que lo alargan al aumentar; en azul, las que lo
-acortan.}
+\includegraphics[width=\linewidth]{fig_sensitivity.pdf}
+\caption{Elasticity of the heating time with respect to each input
+variable. In red, those that lengthen it as they increase; in blue, those
+that shorten it.}
 \end{figure}
 
-Con las propiedades medidas, el reparto de influencias cambia respecto al
-que se obtiene con propiedades constantes. El soporte y el horno siguen
-dominando, pero la muestra ha dejado de ser irrelevante.
+With the measured properties, the distribution of influence changes
+relative to what is obtained with constant properties. The setter and the
+furnace still dominate, but the sample has ceased to be irrelevant.
 
-La densidad y el calor específico del soporte dan exactamente la misma
-elasticidad, $S = \num{0.696}$, porque solo intervienen a través de su
-producto $\rho_{s} \cdot c_{p,s}$, que es su capacidad térmica por unidad de
-volumen. Lo mismo ocurre en la muestra, con $S = \num{0.225}$ en ambas. Es
-el modelo confirmando su propia estructura, y constituye una comprobación
-interna útil: el calor específico entra como función de $T$ y la densidad
-como constante, y aun así ambas salen con idéntica elasticidad.
+The density and the specific heat of the setter give exactly the same
+elasticity, $S = \num{0.696}$, because they enter only through their
+product $\rho_{s} \cdot c_{p,s}$, which is its heat capacity per unit
+volume. The same happens in the sample, with $S = \num{0.225}$ for both. It
+is the model confirming its own structure, and it constitutes a useful
+internal check: the specific heat enters as a function of $T$ and the
+density as a constant, and even so both come out with identical elasticity.
 
-\subsection{Lo que cambia respecto a las propiedades de literatura}
+\subsection{What changes relative to the literature properties}
 
-Con los valores constantes de literatura, ninguna propiedad de la muestra
-alcanzaba una elasticidad de \num{0.14}. Con las propiedades medidas, cuatro
-magnitudes de la muestra superan \num{0.2}: su capacidad térmica, su radio,
-su emisividad y su espesor. El motivo es que la capacidad térmica
-volumétrica del LATP medido, $\rho \cdot c_p \approx
-\SI{7.2e6}{\joule\per\meter\cubed\per\kelvin}$, cuadruplica la que se
-suponía. La muestra ha pasado de ser un pasajero a aportar una fracción
-apreciable de la energía que hay que suministrar.
+With the constant values from the literature, no sample property reached an
+elasticity of \num{0.14}. With the measured properties, four sample
+quantities exceed \num{0.2}: its heat capacity, its radius, its emissivity
+and its thickness. The reason is that the volumetric heat capacity of the
+measured LATP, $\rho \cdot c_p \approx
+\SI{7.2e6}{\joule\per\meter\cubed\per\kelvin}$, is four times what had been
+assumed. The sample has gone from being a passenger to contributing an
+appreciable fraction of the energy that has to be supplied.
 
-La consecuencia práctica es que la discusión del apartado
-\ref{sec:reservas} sobre el calor específico deja de ser académica. Con
-$S = \num{0.225}$, un factor dos en $c_p$ mueve el tiempo de calentamiento
-un \SI{17}{\percent}, y el gradiente interno bastante más.
+The practical consequence is that the discussion of section
+\ref{sec:reservas} on the specific heat ceases to be academic. With
+$S = \num{0.225}$, a factor of two in $c_p$ moves the heating time by
+\SI{17}{\percent}, and the internal gradient by considerably more.
 
-\subsection{Lo que sigue sin importar}
+\subsection{What still does not matter}
 
-Tres resultados negativos se mantienen, y evitan trabajo inútil:
+Three negative results hold, and they save wasted effort:
 
 \begin{itemize}
-\item La \emph{resistencia térmica de contacto} es irrelevante en todo el
-rango realista: haría falta una resistencia un orden de magnitud mayor para
-competir con la radiación.
+\item The \emph{thermal contact resistance} is irrelevant over the whole
+realistic range: a resistance an order of magnitude larger would be needed
+to compete with radiation.
 
-\item La \emph{convección} no cuenta, con $S = \num{-0.049}$. A
-\SI{1200}{\celsius} el coeficiente radiativo es unas veintiséis veces el
-convectivo.
+\item \emph{Convection} does not count, at $S = \num{-0.049}$. At
+\SI{1200}{\celsius} the radiative coefficient is some twenty-six times the
+convective one.
 
-\item La \emph{conductividad} de ambos materiales apenas influye:
-$S = \num{-0.033}$ para el LATP y $S = \num{-0.086}$ para la alúmina. Con un
-número de Biot de \num{0.141}, la pieza está cerca de ser isoterma y la
-resistencia interna aporta poco al total.
+\item The \emph{conductivity} of both materials barely matters:
+$S = \num{-0.033}$ for LATP and $S = \num{-0.086}$ for alumina. With a Biot
+number of \num{0.141}, the piece is close to isothermal and the internal
+resistance contributes little to the total.
 \end{itemize}
 
-Esto ordena las prioridades experimentales. Lo que conviene medir con
-cuidado es la emisividad del soporte, su masa térmica y la curva real de
-recuperación del horno; y, a la luz del cambio anterior, confirmar la
-naturaleza del calor específico del LATP.
+This orders the experimental priorities. What is worth measuring carefully
+is the emissivity of the setter, its thermal mass and the real recovery
+curve of the furnace; and, in the light of the change above, confirming the
+nature of the specific heat of LATP.
 
 % ==========================================================================
-\section{Hipótesis, limitaciones y vías de mejora}
+\section{Assumptions, limitations and routes to improvement}
 \label{sec:limitaciones}
 
-\subsection{Inventario de hipótesis}
+\subsection{Inventory of assumptions}
 
-La \tab{7} reúne las hipótesis adoptadas junto con el orden de magnitud de lo que cada una descarta. Una hipótesis sin su cota es una declaración de intenciones, no un argumento.
+\tab{7} gathers the assumptions adopted together with the order of
+magnitude of what each one discards. An assumption without its bound is a
+statement of intent, not an argument.
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 7.}} Hipótesis del modelo y orden de
-magnitud de lo que cada una descarta.}
+\caption*{\textcolor{uji}{\textbf{Table 7.}} Model assumptions and the
+order of magnitude of what each one discards.}
 \begin{tabular}{p{4.4cm}p{5.6cm}p{3.6cm}}
 \toprule
-Hipótesis & Fundamento & Efecto estimado \\
+Assumption & Basis & Estimated effect \\
 \midrule
-Simetría axial & Geometría y contorno independientes del ángulo & Exacta con calentamiento uniforme \\
-Propiedades constantes con $T$ & \emph{Ya no se aplica}: $k$, $c_p$ y $\varepsilon$ entran como función de $T$ & Queda la dependencia con la porosidad \\
-Cuerpo gris, factor de forma unidad & Cuerpo pequeño en cavidad grande & No contempla el apantallamiento del borde \\
-Superficie opaca & Dispersión intensa en un cuerpo poroso & Pequeño, no verificado \\
-Sin calor de sinterización & Latente frente a sensible & $\sim\SI{1}{\percent}$ \\
-Geometría fija & La contracción ocurre tras la rampa & $\sim\SI{1}{\percent}$ \\
-Ley de Fourier & Relajación fonónica $\sim$ ps & Exacta a esta escala \\
-$h_c$ constante & No acoplado al campo de temperaturas & La convección aporta $\sim\SI{3}{\percent}$ \\
+Axial symmetry & Geometry and boundary independent of angle & Exact with uniform heating \\
+Properties constant with $T$ & \emph{No longer applies}: $k$, $c_p$ and $\varepsilon$ enter as functions of $T$ & The dependence on porosity remains \\
+Grey body, unit view factor & Small body in a large cavity & Does not account for shading of the rim \\
+Opaque surface & Intense scattering in a porous body & Small, not verified \\
+No heat of sintering & Latent against sensible & $\sim\SI{1}{\percent}$ \\
+Fixed geometry & Shrinkage occurs after the ramp & $\sim\SI{1}{\percent}$ \\
+Fourier's law & Phonon relaxation $\sim$ ps & Exact at this scale \\
+Constant $h_c$ & Not coupled to the temperature field & Convection contributes $\sim\SI{3}{\percent}$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\subsection{La limitación principal: la geometría radiativa}
+\subsection{The principal limitation: the radiative geometry}
 
-La hipótesis de factor de forma unidad es la debilidad seria del modelo. El
-soporte sobresale varios milímetros más allá del borde de la pastilla, de
-modo que \emph{apantalla el canto} en los ángulos rasantes: ese canto ve
-parcialmente la cara superior del soporte, más fría, en lugar de las paredes
-del horno. Y el canto no es un detalle geométrico: con
-\SI{10}{\milli\meter} de diámetro y \SI{1.5}{\milli\meter} de espesor,
-supone el \SI{37}{\percent} del área expuesta de la pastilla.
+The unit view factor assumption is the serious weakness of the model. The
+setter extends several millimetres beyond the rim of the pellet, so that it
+\emph{shades the rim} at grazing angles: that rim partly sees the top face
+of the setter, which is colder, rather than the furnace walls. And the rim
+is not a geometric detail: at \SI{10}{\milli\meter} in diameter and
+\SI{1.5}{\milli\meter} thick, it amounts to \SI{37}{\percent} of the
+exposed area of the pellet.
 
 \begin{equation}
-\frac{A_{canto}}{A_{total}}
+\frac{A_{rim}}{A_{total}}
 = \frac{2\pi\, R\, e}{\pi\, R^{2} + 2\pi\, R\, e}
 = \frac{e}{R/2 + e}
 \end{equation}
 
-El modelo actual calienta ese canto de más. La solución rigurosa pasa por un
-método de radiosidad con factores de forma entre las cuatro superficies que
-intervienen: cara superior de la muestra, canto, cara superior del soporte y
-paredes del horno. Es el único cambio de modelado capaz de mover el
-resultado más de un \SI{10}{\percent}.
+The present model heats that rim too much. The rigorous solution is a
+radiosity method with view factors between the four surfaces involved: top
+face of the sample, rim, top face of the setter and furnace walls. It is
+the only modelling change capable of moving the result by more than
+\SI{10}{\percent}.
 
-\subsection{Otras limitaciones}
+\subsection{Other limitations}
 
 \begin{itemize}
-\item \emph{Condición en la base del soporte}. El modelo supone que la cara
-inferior del soporte radia hacia el horno. Si en la práctica descansa sobre
-la solera, está conduciendo hacia una masa mucho mayor y el sumidero
-térmico es considerablemente más grande.
+\item \emph{Condition at the base of the setter}. The model assumes that
+the bottom face of the setter radiates towards the furnace. If in practice
+it rests on the hearth, it is conducting into a far larger mass and the
+thermal sink is considerably bigger.
 
-\item \emph{Opacidad}. A \SI{1200}{\celsius} el máximo de emisión cae en
-\SI{2}{\micro\meter}, donde muchos óxidos son parcialmente transparentes. La
-intensa dispersión de un cuerpo poroso limita la penetración, pero el efecto
-no está cuantificado.
+\item \emph{Opacity}. At \SI{1200}{\celsius} the emission peak falls at
+\SI{2}{\micro\meter}, where many oxides are partly transparent. The intense
+scattering of a porous body limits the penetration, but the effect has not
+been quantified.
 
-\item \emph{Programa del horno}. Los valores de $\Delta T$ y $\tau_{h}$ son
-estimaciones. Influyen poco en el tiempo total, pero gobiernan por completo
-la parte inicial de la curva, que es la que fija la velocidad de
-calentamiento.
+\item \emph{Furnace programme}. The values of $\Delta T$ and $\tau_{h}$ are
+estimates. They have little influence on the total time, but they govern
+the initial part of the curve entirely, which is what sets the heating
+rate.
 \end{itemize}
 
-\subsection{La acción de mayor valor}
+\subsection{The highest-value action}
 
-Un termopar fino embebido en una pastilla de sacrificio, registrando la
-introducción en el horno, calibra simultáneamente la emisividad efectiva, la
-geometría radiativa y la recuperación del horno. Cualquier refinamiento de
-modelado emprendido sin esa medida equivale a pulir la parte del trabajo que
-ya funciona.
+A fine thermocouple embedded in a sacrificial pellet, recording the
+introduction into the furnace, calibrates the effective emissivity, the
+radiative geometry and the furnace recovery all at once. Any modelling
+refinement undertaken without that measurement amounts to polishing the
+part of the work that already functions.
 
 % ==========================================================================
-\section{Nomenclatura}
+\section{Nomenclature}
 
 \begin{table}[htbp]
 \centering
-\caption*{\textcolor{uji}{\textbf{Tabla 8.}} Símbolos, unidades y valores de
-referencia.}
+\caption*{\textcolor{uji}{\textbf{Table 8.}} Symbols, units and reference
+values.}
 \begin{tabular}{llll}
 \toprule
-Símbolo & Magnitud & Unidad & Valor de referencia \\
+Symbol & Quantity & Unit & Reference value \\
 \midrule
-$T$ & Temperatura & \si{\kelvin} & --- \\
-$T_c, T_s, T_m$ & Centro, pared y media & \si{\kelvin} & --- \\
-$T_h$ & Paredes del horno & \si{\kelvin} & \num{1473} \\
-$T_0$ & Inicial de la muestra & \si{\kelvin} & \num{373} \\
-$e$ & Espesor de la muestra & \si{\meter} & \num{1.5e-3} \\
-$L$ & Semiespesor, $e/2$ & \si{\meter} & \num{0.75e-3} \\
-$R$ & Radio de la muestra & \si{\meter} & \num{5e-3} \\
-$e_s$ & Espesor del soporte & \si{\meter} & \num{2e-3} \\
-$k$ & Conductividad térmica & \si{\watt\per\meter\per\kelvin} & $f(T)$, sección \ref{sec:propiedades} \\
-$\rho$ & Densidad & \si{\kilogram\per\meter\cubed} & \num{2990} / \num{3900} \\
-$c_p$ & Calor específico & \si{\joule\per\kilogram\per\kelvin} & $f(T)$, sección \ref{sec:propiedades} \\
-$\alpha$ & Difusividad, $k/(\rho c_p)$ & \si{\meter\squared\per\second} & \numrange{1.9e-7}{2.9e-7} \\
-$\varepsilon$ & Emisividad & --- & $f(T)$, sección \ref{sec:propiedades} \\
-$\sigma$ & Constante de Stefan--Boltzmann & \si{\watt\per\meter\squared\per\kelvin\tothe{4}} & \num{5.670e-8} \\
-$h_c$ & Coeficiente de convección & \si{\watt\per\meter\squared\per\kelvin} & \num{10} \\
-$h_{rad}$ & Coeficiente radiativo equivalente & \si{\watt\per\meter\squared\per\kelvin} & \num{262} \\
-$R_c$ & Resistencia de contacto & \si{\meter\squared\kelvin\per\watt} & \num{0} \\
-$E$ & Módulo de Young & \si{\pascal} & \num{100e9} \\
-$\alpha_t$ & Coeficiente de dilatación & \si{\per\kelvin} & \num{1e-5} \\
-$\nu$ & Coeficiente de Poisson & --- & \num{0.25} \\
-$Bi$ & Número de Biot, $hL/k$ & --- & \num{0.141} \\
-$Fo$ & Número de Fourier, $\alpha t/L^2$ & --- & --- \\
-$\tau$ & Constante de tiempo, $\rho c_p L/h$ & \si{\second} & \num{16.4} \\
-$q''$ & Flujo de calor por unidad de área & \si{\watt\per\meter\squared} & --- \\
-$G$ & Conductancia entre celdas & \si{\watt\per\kelvin} & --- \\
+$T$ & Temperature & \si{\kelvin} & --- \\
+$T_c, T_s, T_m$ & Centre, wall and mean & \si{\kelvin} & --- \\
+$T_h$ & Furnace walls & \si{\kelvin} & \num{1473} \\
+$T_0$ & Initial, of the sample & \si{\kelvin} & \num{373} \\
+$e$ & Thickness of the sample & \si{\meter} & \num{1.5e-3} \\
+$L$ & Half-thickness, $e/2$ & \si{\meter} & \num{0.75e-3} \\
+$R$ & Radius of the sample & \si{\meter} & \num{5e-3} \\
+$e_s$ & Thickness of the setter & \si{\meter} & \num{2e-3} \\
+$k$ & Thermal conductivity & \si{\watt\per\meter\per\kelvin} & $f(T)$, section \ref{sec:propiedades} \\
+$\rho$ & Density & \si{\kilogram\per\meter\cubed} & \num{2990} / \num{3900} \\
+$c_p$ & Specific heat & \si{\joule\per\kilogram\per\kelvin} & $f(T)$, section \ref{sec:propiedades} \\
+$\alpha$ & Diffusivity, $k/(\rho c_p)$ & \si{\meter\squared\per\second} & \numrange{1.9e-7}{2.9e-7} \\
+$\varepsilon$ & Emissivity & --- & $f(T)$, section \ref{sec:propiedades} \\
+$\sigma$ & Stefan--Boltzmann constant & \si{\watt\per\meter\squared\per\kelvin\tothe{4}} & \num{5.670e-8} \\
+$h_c$ & Convection coefficient & \si{\watt\per\meter\squared\per\kelvin} & \num{10} \\
+$h_{rad}$ & Equivalent radiative coefficient & \si{\watt\per\meter\squared\per\kelvin} & \num{262} \\
+$R_c$ & Contact resistance & \si{\meter\squared\kelvin\per\watt} & \num{0} \\
+$E$ & Young's modulus & \si{\pascal} & \num{100e9} \\
+$\alpha_t$ & Coefficient of thermal expansion & \si{\per\kelvin} & \num{1e-5} \\
+$\nu$ & Poisson's ratio & --- & \num{0.25} \\
+$Bi$ & Biot number, $hL/k$ & --- & \num{0.141} \\
+$Fo$ & Fourier number, $\alpha t/L^2$ & --- & --- \\
+$\tau$ & Time constant, $\rho c_p L/h$ & \si{\second} & \num{16.4} \\
+$q''$ & Heat flux per unit area & \si{\watt\per\meter\squared} & --- \\
+$G$ & Conductance between cells & \si{\watt\per\kelvin} & --- \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Las propiedades del LATP y la emisividad de la alúmina proceden de medidas
-propias; el resto, de literatura. Sus expresiones y sus fuentes se recogen
-en la sección \ref{sec:propiedades}.
+The LATP properties and the emissivity of the alumina come from our own
+measurements; the rest from the literature. Their expressions and their
+sources are collected in section \ref{sec:propiedades}.
 
 % ==========================================================================
 \begin{thebibliography}{9}
 \small
 \bibitem{incropera} F. P. Incropera, D. P. DeWitt, T. L. Bergman,
-A. S. Lavine. \emph{Fundamentals of Heat and Mass Transfer}, 7.\textsuperscript{a}
+A. S. Lavine. \emph{Fundamentals of Heat and Mass Transfer}, 7th
 ed. Wiley, 2011.
 \bibitem{carslaw} H. S. Carslaw, J. C. Jaeger. \emph{Conduction of Heat in
-Solids}, 2.\textsuperscript{a} ed. Oxford University Press, 1959.
+Solids}, 2nd ed. Oxford University Press, 1959.
 \bibitem{patankar} S. V. Patankar. \emph{Numerical Heat Transfer and Fluid
 Flow}. Hemisphere Publishing, 1980.
-\bibitem{ozisik} M. N. Özişik. \emph{Heat Conduction}, 2.\textsuperscript{a}
+\bibitem{ozisik} M. N. Özişik. \emph{Heat Conduction}, 2nd
 ed. Wiley, 1993.
 \bibitem{modest} M. F. Modest. \emph{Radiative Heat Transfer},
-3.\textsuperscript{a} ed. Academic Press, 2013.
+3rd ed. Academic Press, 2013.
 \bibitem{mills} A. F. Mills. \emph{Heat and Mass Transfer}. Irwin, 1995.
 \bibitem{versteeg} H. K. Versteeg, W. Malalasekera. \emph{An Introduction to
 Computational Fluid Dynamics: The Finite Volume Method},
-2.\textsuperscript{a} ed. Pearson, 2007.
+2nd ed. Pearson, 2007.
 \bibitem{siegel} R. Siegel, J. R. Howell. \emph{Thermal Radiation Heat
-Transfer}, 4.\textsuperscript{a} ed. Taylor \& Francis, 2002.
+Transfer}, 4th ed. Taylor \& Francis, 2002.
 \end{thebibliography}
 
 \end{document}
